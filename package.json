@@ -15,7 +15,10 @@
     "jarallax": "^2.2.1",
     "jquery": "^3.7.1",
     "react": "^19.0.0",
+    "react-bootstrap": "^2.10.9",
+    "react-bootstrap-icons": "^1.11.5",
     "react-dom": "^19.0.0",
+    "react-dropzone": "^14.3.8",
     "react-scripts": "5.0.1",
     "swiper": "^11.2.5",
     "web-vitals": "^2.1.4"

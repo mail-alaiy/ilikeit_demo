@@ -24,36 +24,43 @@ const Compliments = () => {
   }, []);
 
   return (
-    <section className="py-5 bg-light">
-      <div className="text-center mb-5">
-        <h3 className="display-6 text-dark">What Our Customers Say</h3>
+    <section className="compliments-section">
+      <div className="compliments-heading">
+        <h3>What Our Customers Say</h3>
       </div>
 
       {/* Swiper Container */}
-      <div className="swiper testimonial-swiper overflow-hidden mt-4 px-3">
-        <div className="swiper-wrapper d-flex">
+      <div className="swiper testimonial-swiper">
+        <div className="swiper-wrapper">
           {/* Testimonial Items */}
-          {[{
-            text: "These cotton T-shirts are incredibly comfortable and fit just right. They don’t shrink after washing and feel super soft!",
-            author: "Perfect Fit"
-          }, {
-            text: "This dress shirt is a must-have for work. The material is breathable, and the fit is tailored but not too tight.",
-            author: "Office Classic"
-          }, {
-            text: "I bought this formal suit for a wedding, and the quality exceeded my expectations. It’s stylish, comfortable, and well-stitched.",
-            author: "Dapper Look"
-          }, {
-            text: "This winter jacket is warm yet lightweight. It keeps me cozy in freezing temperatures without feeling bulky!",
-            author: "Winter Essential"
-          }].map((testimonial, index) => (
+          {[
+            {
+              text: "These cotton T-shirts are incredibly comfortable and fit just right. They don’t shrink after washing and feel super soft!",
+              author: "Perfect Fit",
+            },
+            {
+              text: "This dress shirt is a must-have for work. The material is breathable, and the fit is tailored but not too tight.",
+              author: "Office Classic",
+            },
+            {
+              text: "I bought this formal suit for a wedding, and the quality exceeded my expectations. It’s stylish, comfortable, and well-stitched.",
+              author: "Dapper Look",
+            },
+            {
+              text: "This winter jacket is warm yet lightweight. It keeps me cozy in freezing temperatures without feeling bulky!",
+              author: "Winter Essential",
+            },
+          ].map((testimonial, index) => (
             <div key={index} className="swiper-slide">
-              <div className="bg-white p-4 shadow-lg rounded text-center mx-auto d-flex flex-column align-items-center justify-content-center" style={{ width: '24rem', height: '15rem' }}>
-                <p className="fs-5 text-muted">“{testimonial.text}”</p>
-                <div className="mt-3 fw-bold text-primary">— {testimonial.author}</div>
+              <div className="testimonial-card">
+                <p>“{testimonial.text}”</p>
+                <div className="testimonial-author">— {testimonial.author}</div>
               </div>
             </div>
           ))}
         </div>
+        {/* Pagination */}
+        <div className="swiper-pagination testimonial-swiper-pagination"></div>
       </div>
     </section>
   );

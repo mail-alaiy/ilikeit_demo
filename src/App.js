@@ -10,11 +10,17 @@ import Shirts from './components/Shirts'
 import Tshirts from './components/Tshirts'
 import WinterComfort from './components/WinterComfort'
 import "bootstrap/dist/css/bootstrap.min.css";
+import Login from './components/Login'
+import AddNameScreen from './components/AddName'
 import "./App.css";
+import UploadPicturesScreen from './components/UploadPictures'
 
 const App = () => {
   return (
    <>
+   <Login/>
+   <AddNameScreen/>
+   <UploadPicturesScreen/>
    <Navbar/>
    <Billboard/>
    <NewArrivals/>
