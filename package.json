@@ -3,13 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.14.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
+    "aos": "^2.3.4",
+    "bootstrap": "^5.3.3",
+    "hc-sticky": "^2.2.7",
+    "isotope-layout": "^3.0.6",
+    "jarallax": "^2.2.1",
+    "jquery": "^3.7.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-scripts": "5.0.1",
+    "swiper": "^11.2.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

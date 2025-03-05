@@ -1,25 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+/* eslint-disable jsx-a11y/anchor-is-valid */
+import React from 'react'
+import Billboard from './components/Billboard'
+import Compliments from './components/Compliments'
+import Footer from './components/Footer'
+import Navbar from './components/Navbar'
+import NewArrivals from './components/NewArrivals'
+import Newsletter from './components/Newsletter'
+import Shirts from './components/Shirts'
+import Tshirts from './components/Tshirts'
+import WinterComfort from './components/WinterComfort'
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css";
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+   <>
+   <Navbar/>
+   <Billboard/>
+   <NewArrivals/>
+   <WinterComfort/>
+   <Compliments/>
+   <Shirts/>
+   <Tshirts/>
+   <Newsletter/>
+   <Footer/>
+   </>
+  )
 }
 
-export default App;
+export default App
