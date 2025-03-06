@@ -1,38 +1,117 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react';
+import { FaRegHeart, FaHeart } from "react-icons/fa";
+const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
+const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 
 const Shirts = () => {
+  const [liked, setLiked] = useState({});
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const query = `
+        {
+          products(where: { category: "Shirt" }) {
+            name
+            price
+            category
+            images {
+              url
+            }
+          }
+        }
+      `;
+
+      const response = await fetch(HYGRAPH_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${AUTH_TOKEN}`
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      const { data } = await response.json();
+      setProducts(data.products || []);
+    };
+
+    fetchProducts();
+  }, []);
+
+  const toggleLike = (index) => {
+    setLiked((prev) => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
   return (
     <section id="new-arrivals">
-    <h4>Shirts</h4>
-    <div class="product-grid">
-      <div class="product-item">
-        <img src="https://assets.ajio.com/medias/sys_master/root/20241218/FeJz/676269630f47f80c87087723/-473Wx593H-442814812-purple-MODEL.jpg" alt="Men Regular Fit Shirt with Patch Pocket"/>
-        <h3>Regular Fit Shirt with Patch Pocket</h3>
-        <button class="add-to-cart">Add to Cart</button>
+      <h4>Shirts</h4>
+      <div className="product-grid">
+        {products.map((product, index) => (
+          <div className="product-item" key={index}>
+            <div className="image-container">
+              <img src={product.images?.[0]?.url || "fallback-image.jpg"} alt={product.name} />
+              <button className="heart-button" onClick={() => toggleLike(index)}>
+                {liked[index] ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
+              </button>
+            </div>
+            <h3>{product.name}</h3>
+            <p>₹{product.price.toFixed(2)}</p>
+            <button className="add-to-cart">Add to Cart</button>
+          </div>
+        ))}
       </div>
-      <div class="product-item">
-        <img src="https://assets.ajio.com/medias/sys_master/root/20241018/MiX0/67123c6df9b8ef490bc6a837/-473Wx593H-469704839-white-MODEL.jpg" alt="Striped Print Slim Fit Shirt"/>
-        <h3>Striped Print Slim Fit Shirt</h3>
-        <button class="add-to-cart">Add to Cart</button>
-      </div>
-      <div class="product-item">
-        <img src="https://assets.ajio.com/medias/sys_master/root/20250205/GlTq/67a37efdbc78b543a924b729/-473Wx593H-701168151-brown-MODEL.jpg" alt="Regular Fit Shirt with Spread Collar"/>
-        <h3>Regular Fit Shirt with Spread Collar</h3>
-        <button class="add-to-cart">Add to Cart</button>
-      </div>
-      <div class="product-item">
-        <img src="https://assets.ajio.com/medias/sys_master/root/20241006/CGKr/670278c7f9b8ef490b99e796/-473Wx593H-700539712-blue-MODEL.jpg" alt="TailoredFit Shirt"/>
-        <h3>Tailored Fit Shirt</h3>
-        <button class="add-to-cart">Add to Cart</button>
-      </div>
-      <div class="product-item">
-        <img src="https://img.abercrombie.com/is/image/anf/KIC_125-5066-00248-900_model1.jpg?policy=product-extra-large" alt="Short-Sleeve Summer Linen-Blend Button-Up Shirt"/>
-        <h3>Short-Sleeve Summer Linen-Blend Button-Up Shirt</h3>
-        <button class="add-to-cart">Add to Cart</button>
-      </div>
-    </div>
-  </section>
-  )
-}
 
-export default Shirts
+      {/* Styles */}
+      <style>{`
+        .product-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+        }
+
+        .product-item {
+          text-align: center;
+          position: relative;
+        }
+
+        .image-container {
+          position: relative;
+          display: inline-block;
+        }
+
+        .image-container img {
+          width: 100%;
+          border-radius: 10px;
+        }
+
+        .heart-button {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background: none;
+          border: none;
+          font-size: 24px;
+          cursor: pointer;
+          transition: transform 0.2s ease-in-out;
+        }
+
+        .heart-button:hover {
+          transform: scale(1.1);
+        }
+
+        .outlined-heart {
+          color: #777;
+        }
+
+        .filled-heart {
+          color: red;
+        }
+      `}</style>
+    </section>
+  );
+};
+
+export default Shirts;

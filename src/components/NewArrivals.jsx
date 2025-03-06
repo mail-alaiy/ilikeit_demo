@@ -1,11 +1,58 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 
+
+const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
+const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
+
+
 const NewArrivals = () => {
+  const [liked, setLiked] = useState({});
+   const [products, setProducts] = useState([]);
+  
+    useEffect(() => {
+      const fetchProducts = async () => {
+        const query = `
+          {
+            products(where: { category: "NewArrivals" }) {
+              name
+              price
+              category
+              images {
+                url
+              }
+            }
+          }
+        `;
+  
+        const response = await fetch(HYGRAPH_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${AUTH_TOKEN}`
+          },
+          body: JSON.stringify({ query }),
+        });
+  
+        const { data } = await response.json();
+        setProducts(data.products || []); // Handle case where no data is returned
+      };
+  
+      fetchProducts();
+    }, []);
+
+  const toggleLike = (index) => {
+    setLiked((prev) => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
   return (
     <section id="new-arrival" className="new-arrival product-carousel py-5 position-relative">
       <div className="container">
@@ -22,68 +69,63 @@ const NewArrivals = () => {
           pagination={{ clickable: true }}
           className="product-swiper"
         >
-          {/* Product Slides */}
-          <SwiperSlide>
-            <div className="product-itemss">
-              <img
-                src="https://assets.ajio.com/medias/sys_master/root/20241223/U3HN/676926550f47f80c87197358/-473Wx593H-700966953-white-MODEL.jpg"
-                alt="Graphic Hoodie"
-                className="product-image"
-              />
-              <h5>Graphic Hoodie</h5>
-              <span>$95.00</span>
-            </div>
-          </SwiperSlide>
-
-          <SwiperSlide>
-            <div className="product-itemss">
-              <img
-                src="https://img.abercrombie.com/is/image/anf/KIC_122-4163-00282-906_prod1.jpg"
-                alt="Half Zip Sweatshirt"
-                className="product-image"
-              />
-              <h5>Essential Half Zip Sweatshirt</h5>
-              <span>$55.00</span>
-            </div>
-          </SwiperSlide>
-
-          <SwiperSlide>
-            <div className="product-itemss">
-              <img
-                src="https://img.abercrombie.com/is/image/anf/KIC_122-5293-00752-305_prod1.jpg?policy=product-large"
-                alt="Cropped Essential Rugby Polo Sweatshirt"
-                className="product-image"
-              />
-              <h5>Cropped Essential Rugby Polo Sweatshirt</h5>
-              <span>$70.00</span>
-            </div>
-          </SwiperSlide>
-
-          <SwiperSlide>
-            <div className="product-itemss">
-              <img
-                src="https://img.abercrombie.com/is/image/anf/KIC_120-5049-00371-200_prod1.jpg?policy=product-large"
-                alt="Crochet-Style Diamond Button-Through Sweater Polo"
-                className="product-image"
-              />
-              <h5>Crochet-Style Diamond Button-Through Sweater Polo</h5>
-              <span>$50.00</span>
-            </div>
-          </SwiperSlide>
-
-          <SwiperSlide>
-            <div className="product-itemss">
-              <img
-                src="https://img.abercrombie.com/is/image/anf/KIC_122-5163-00816-200_prod1.jpg?policy=product-large"
-                alt="Golf Graphic Popover Hoodie"
-                className="product-image"
-              />
-              <h5>Golf Graphic Popover Hoodie</h5>
-              <span>$65.00</span>
-            </div>
-          </SwiperSlide>
+          {products.map((product, index) => (
+            <SwiperSlide key={index}>
+              <div className="product-itemss">
+                <div className="image-container">
+                <img src={product.images?.[0]?.url || "fallback-image.jpg"} alt={product.name} />
+                  <button className="heart-button" onClick={() => toggleLike(index)}>
+                    {liked[index] ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
+                  </button>
+                </div>
+                <h5>{product.name}</h5>
+                <span>{product.price}</span>
+              </div>
+            </SwiperSlide>
+          ))}
         </Swiper>
       </div>
+
+      {/* Styles */}
+      <style>{`
+        .product-item {
+          text-align: center;
+          position: relative;
+        }
+
+        .image-container {
+          position: relative;
+          display: inline-block;
+        }
+
+        .product-image {
+          width: 100%;
+          border-radius: 10px;
+        }
+
+        .heart-button {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background: none;
+          border: none;
+          font-size: 24px;
+          cursor: pointer;
+          transition: transform 0.2s ease-in-out;
+        }
+
+        .heart-button:hover {
+          transform: scale(1.1);
+        }
+
+        .outlined-heart {
+          color: #777;
+        }
+
+        .filled-heart {
+          color: red;
+        }
+      `}</style>
     </section>
   );
 };

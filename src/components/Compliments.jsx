@@ -3,36 +3,32 @@ import Swiper from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
+import "bootstrap/dist/css/bootstrap.min.css";
 import { Pagination, Autoplay } from "swiper/modules";
 
 const Compliments = () => {
   useEffect(() => {
     new Swiper(".testimonial-swiper", {
       modules: [Pagination, Autoplay],
-      slidesPerView: 1,
-      spaceBetween: 10,
+      slidesPerView: "auto",
+      centeredSlides: true,
+      spaceBetween: 30,
       loop: true,
+      grabCursor: true,
       autoplay: { delay: 3000, disableOnInteraction: false },
       pagination: { el: ".testimonial-swiper-pagination", clickable: true },
-      breakpoints: {
-        640: { slidesPerView: 1 },
-        768: { slidesPerView: 2 },
-        1024: { slidesPerView: 3 },
-        1440: { slidesPerView: 3 },
-      },
     });
   }, []);
 
   return (
-    <section className="compliments-section">
-      <div className="compliments-heading">
-        <h3>What Our Customers Say</h3>
+    <section className="container py-5">
+      <div className="text-center mb-4">
+        <h3 className="fw-bold">What Our Customers Say</h3>
       </div>
 
       {/* Swiper Container */}
       <div className="swiper testimonial-swiper">
         <div className="swiper-wrapper">
-          {/* Testimonial Items */}
           {[
             {
               text: "These cotton T-shirts are incredibly comfortable and fit just right. They don’t shrink after washing and feel super soft!",
@@ -52,15 +48,13 @@ const Compliments = () => {
             },
           ].map((testimonial, index) => (
             <div key={index} className="swiper-slide">
-              <div className="testimonial-card">
-                <p>“{testimonial.text}”</p>
-                <div className="testimonial-author">— {testimonial.author}</div>
+              <div className="card text-center shadow-lg border-0 mx-2" style={{ width: "22rem", padding: "20px", borderRadius: "15px" }}>
+                <p className="fs-5 text-muted">“{testimonial.text}”</p>
+                <div className="fw-bold text-primary">— {testimonial.author}</div>
               </div>
             </div>
           ))}
         </div>
-        {/* Pagination */}
-        <div className="swiper-pagination testimonial-swiper-pagination"></div>
       </div>
     </section>
   );
