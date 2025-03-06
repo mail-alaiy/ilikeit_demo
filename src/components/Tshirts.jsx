@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaRegHeart, FaHeart } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
 
 
 const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
@@ -8,6 +9,7 @@ const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 const Tshirts = () => {
   const [liked, setLiked] = useState({});
   const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -52,7 +54,7 @@ const Tshirts = () => {
       <h4>T-Shirts</h4>
       <div className="product-grid">
         {products.map((product, index) => (
-          <div className="product-item" key={index}>
+          <div className="product-item" key={index} onClick={() => navigate(`/product/${encodeURIComponent(product.name)}`, { state: { product } })}>
             <div className="image-container">
               <img src={product.images?.[0]?.url || "fallback-image.jpg"} alt={product.name} />
               <button className="heart-button" onClick={() => toggleLike(index)}>

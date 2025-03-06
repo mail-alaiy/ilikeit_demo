@@ -5,6 +5,7 @@ import { FaRegHeart, FaHeart } from "react-icons/fa";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import { useNavigate } from "react-router-dom";
 
 
 const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
@@ -14,6 +15,7 @@ const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 const NewArrivals = () => {
   const [liked, setLiked] = useState({});
    const [products, setProducts] = useState([]);
+   const navigate = useNavigate();
   
     useEffect(() => {
       const fetchProducts = async () => {
@@ -71,7 +73,7 @@ const NewArrivals = () => {
         >
           {products.map((product, index) => (
             <SwiperSlide key={index}>
-              <div className="product-itemss">
+              <div className="product-itemss" key={index} onClick={() => navigate(`/product/${encodeURIComponent(product.name)}`, { state: { product } })}>
                 <div className="image-container">
                 <img src={product.images?.[0]?.url || "fallback-image.jpg"} alt={product.name} />
                   <button className="heart-button" onClick={() => toggleLike(index)}>
