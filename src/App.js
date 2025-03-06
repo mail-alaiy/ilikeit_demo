@@ -18,9 +18,6 @@ import UploadPicturesScreen from './components/UploadPictures'
 const App = () => {
   return (
    <>
-   <Login/>
-   <AddNameScreen/>
-   <UploadPicturesScreen/>
    <Navbar/>
    <Billboard/>
    <NewArrivals/>
