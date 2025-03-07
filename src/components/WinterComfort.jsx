@@ -6,7 +6,6 @@ const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
 const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 
 const WinterComfort = () => {
-  const [liked, setLiked] = useState({});
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
 
@@ -15,12 +14,14 @@ const WinterComfort = () => {
       const query = `
         {
           products(where: { category: "WinterComfort" }) {
+            id
             name
             price
             category
             images {
               url
             }
+            wishlist
           }
         }
       `;
@@ -35,17 +36,53 @@ const WinterComfort = () => {
       });
 
       const { data } = await response.json();
-      setProducts(data.products || []);
+      
+      const updatedProducts = data.products.map((product) => ({
+        ...product,
+        wishlist: JSON.parse(localStorage.getItem(`wishlist_${product.id}`)) ?? product.wishlist ?? false,
+      }));
+
+      setProducts(updatedProducts);
     };
 
     fetchProducts();
   }, []);
 
-  const toggleLike = (index) => {
-    setLiked((prev) => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
+  const toggleWishlist = async (productId, index) => {
+    const updatedWishlist = !products[index].wishlist;
+
+    setProducts((prevProducts) => {
+      const newProducts = [...prevProducts];
+      newProducts[index].wishlist = updatedWishlist;
+      return newProducts;
+    });
+
+    localStorage.setItem(`wishlist_${productId}`, JSON.stringify(updatedWishlist));
+
+    const mutation = `
+      mutation {
+        updateProduct(where: { id: "${productId}" }, data: { wishlist: ${updatedWishlist} }) {
+          id
+          wishlist
+        }
+        publishProduct(where: { id: "${productId}" }) {
+          id
+        }
+      }
+    `;
+
+    try {
+      await fetch(HYGRAPH_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${AUTH_TOKEN}`,
+        },
+        body: JSON.stringify({ query: mutation }),
+      });
+    } catch (error) {
+      console.error("Error updating wishlist:", error);
+    }
   };
 
   return (
@@ -53,11 +90,11 @@ const WinterComfort = () => {
       <h4>Winter Comfort</h4>
       <div className="product-grid">
         {products.map((product, index) => (
-          <div className="product-item" key={index} onClick={() => navigate(`/product/${encodeURIComponent(product.name)}`, { state: { product } })}>
+          <div className="product-item" key={product.id} onClick={() => navigate(`/product/${encodeURIComponent(product.name)}`, { state: { product } })}>
             <div className="image-container">
               <img src={product.images?.[0]?.url || "fallback-image.jpg"} alt={product.name} />
-              <button className="heart-button" onClick={() => toggleLike(index)}>
-                {liked[index] ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
+              <button className="heart-button" onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id, index); }}>
+                {product.wishlist ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
               </button>
             </div>
             <h3>{product.name}</h3>
@@ -106,7 +143,7 @@ const WinterComfort = () => {
         }
 
         .outlined-heart {
-          color: #777;
+          color: #777; 
         }
 
         .filled-heart {

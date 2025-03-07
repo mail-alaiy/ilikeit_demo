@@ -7,52 +7,85 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { useNavigate } from "react-router-dom";
 
-
 const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
 const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 
-
 const NewArrivals = () => {
-  const [liked, setLiked] = useState({});
-   const [products, setProducts] = useState([]);
-   const navigate = useNavigate();
-  
-    useEffect(() => {
-      const fetchProducts = async () => {
-        const query = `
-          {
-            products(where: { category: "NewArrivals" }) {
-              name
-              price
-              category
-              images {
-                url
-              }
-            }
-          }
-        `;
-  
-        const response = await fetch(HYGRAPH_API, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${AUTH_TOKEN}`
-          },
-          body: JSON.stringify({ query }),
-        });
-  
-        const { data } = await response.json();
-        setProducts(data.products || []); // Handle case where no data is returned
-      };
-  
-      fetchProducts();
-    }, []);
+  const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
-  const toggleLike = (index) => {
-    setLiked((prev) => ({
-      ...prev,
-      [index]: !prev[index]
-    }));
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const query = `
+        {
+          products(where: { category: "NewArrivals" }) {
+            id
+            name
+            price
+            category
+            images {
+              url
+            }
+            wishlist
+          }
+        }
+      `;
+
+      const response = await fetch(HYGRAPH_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${AUTH_TOKEN}`,
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      const { data } = await response.json();
+      const updatedProducts = data.products.map((product) => ({
+        ...product,
+        wishlist: JSON.parse(localStorage.getItem(`wishlist_${product.id}`)) ?? product.wishlist ?? false,
+      }));
+      setProducts(updatedProducts);
+    };
+
+    fetchProducts();
+  }, []);
+
+  const toggleWishlist = async (productId, index) => {
+    const updatedWishlist = !products[index].wishlist;
+
+    setProducts((prevProducts) => {
+      const newProducts = [...prevProducts];
+      newProducts[index].wishlist = updatedWishlist;
+      return newProducts;
+    });
+
+    localStorage.setItem(`wishlist_${productId}`, JSON.stringify(updatedWishlist));
+
+    const mutation = `
+      mutation {
+        updateProduct(where: { id: "${productId}" }, data: { wishlist: ${updatedWishlist} }) {
+          id
+          wishlist
+        }
+        publishProduct(where: { id: "${productId}" }) {
+          id
+        }
+      }
+    `;
+
+    try {
+      await fetch(HYGRAPH_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${AUTH_TOKEN}`,
+        },
+        body: JSON.stringify({ query: mutation }),
+      });
+    } catch (error) {
+      console.error("Error updating wishlist:", error);
+    }
   };
 
   return (
@@ -72,16 +105,16 @@ const NewArrivals = () => {
           className="product-swiper"
         >
           {products.map((product, index) => (
-            <SwiperSlide key={index}>
-              <div className="product-itemss" key={index} onClick={() => navigate(`/product/${encodeURIComponent(product.name)}`, { state: { product } })}>
+            <SwiperSlide key={product.id}>
+              <div className="product-item" onClick={() => navigate(`/product/${encodeURIComponent(product.name)}`, { state: { product } })}>
                 <div className="image-container">
-                <img src={product.images?.[0]?.url || "fallback-image.jpg"} alt={product.name} />
-                  <button className="heart-button" onClick={() => toggleLike(index)}>
-                    {liked[index] ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
+                  <img src={product.images?.[0]?.url || "fallback-image.jpg"} alt={product.name} />
+                  <button className="heart-button" onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id, index); }}>
+                    {product.wishlist ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
                   </button>
                 </div>
                 <h5>{product.name}</h5>
-                <span>{product.price}</span>
+                <span>₹{product.price}</span>
               </div>
             </SwiperSlide>
           ))}

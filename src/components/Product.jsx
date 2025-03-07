@@ -7,10 +7,52 @@ import "swiper/css/pagination";
 import { useLocation } from "react-router-dom";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 
+const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
+const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
+
 const Product = () => {
   const location = useLocation();
   const product = location.state?.product;
-  const [liked, setLiked] = useState(false); // Track heart state
+
+  const [liked, setLiked] = useState(() => {
+    return JSON.parse(localStorage.getItem(`wishlist_${product?.id}`)) ?? product?.wishlist ?? false;
+  });
+
+  const toggleWishlist = async () => {
+    const newWishlistStatus = !liked;
+    setLiked(newWishlistStatus);
+
+    localStorage.setItem(`wishlist_${product.id}`, JSON.stringify(newWishlistStatus));
+
+    const mutation = `
+      mutation {
+        updateProduct(where: { id: "${product.id}" }, data: { wishlist: ${newWishlistStatus} }) {
+          id
+          wishlist
+        }
+        publishProduct(where: { id: "${product.id}" }) {
+          id
+        }
+      }
+    `;
+
+    try {
+      const response = await fetch(HYGRAPH_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${AUTH_TOKEN}`,
+        },
+        body: JSON.stringify({ query: mutation }),
+      });
+
+      const data = await response.json();
+      console.log("Updated wishlist:", data);
+    } catch (error) {
+      console.error("Error updating wishlist:", error);
+      setLiked(!newWishlistStatus); // Revert on failure
+    }
+  };
 
   if (!product) {
     return <h2 className="text-center text-danger mt-5">Product not found!</h2>;
@@ -21,26 +63,11 @@ const Product = () => {
       <div className="row g-4 align-items-start">
         {/* Left: Product Images */}
         <div className="col-lg-6 col-md-12 position-relative">
-          <Swiper
-            modules={[Navigation, Pagination]}
-            spaceBetween={10}
-            slidesPerView={1}
-            navigation
-            pagination={{ clickable: true }}
-            className="rounded-4 overflow-hidden shadow-sm"
-          >
+          <Swiper modules={[Navigation, Pagination]} spaceBetween={10} slidesPerView={1} navigation pagination={{ clickable: true }} className="rounded-4 overflow-hidden shadow-sm">
             {product.images.map((image, index) => (
               <SwiperSlide key={index} className="position-relative">
-                <img
-                  src={image.url}
-                  alt={`Product image ${index + 1}`}
-                  className="img-fluid rounded-3 w-100"
-                />
-                {/* Heart Icon for Wishlist */}
-                <button
-                  className="heart-button"
-                  onClick={() => setLiked(!liked)}
-                >
+                <img src={image.url} alt={`Product image ${index + 1}`} className="img-fluid rounded-3 w-100" />
+                <button className="heart-button" onClick={toggleWishlist}>
                   {liked ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
                 </button>
               </SwiperSlide>
@@ -53,18 +80,12 @@ const Product = () => {
           <h5 className="fw-bold text-dark mb-3 text-uppercase">{product.name}</h5>
           <p className="text-muted mb-3">{product.description}</p>
           <span className="fs-3 fw-bold text-primary d-block mb-3">₹{product.price.toFixed(2)}</span>
-
-          {/* Additional Product Info */}
           <p className="text-muted">Availability: <span className="fw-semibold text-success">In Stock</span></p>
 
-          {/* Quantity Selector */}
-          <div className="d-flex align-items-center justify-content-center justify-content-lg-start mb-4">
-            <label className="me-2 fw-semibold">Quantity:</label>
-            <input type="number" min="1" defaultValue="1" className="form-control w-25 text-center" />
-          </div>
-
           <button className="btn btn-lg btn-primary w-100 rounded-pill shadow-sm">Add to Cart</button>
-          <button className="btn btn-outline-dark w-100 mt-3 rounded-pill shadow-sm">Wishlist</button>
+          <button className="btn btn-outline-dark w-100 mt-3 rounded-pill shadow-sm" onClick={toggleWishlist}>
+            {liked ? "Remove from Wishlist" : "Add to Wishlist"}
+          </button>
         </div>
       </div>
 
@@ -80,15 +101,12 @@ const Product = () => {
           cursor: pointer;
           transition: transform 0.2s ease-in-out;
         }
-
         .heart-button:hover {
           transform: scale(1.1);
         }
-
         .outlined-heart {
           color: #777; 
         }
-
         .filled-heart {
           color: red;
         }
