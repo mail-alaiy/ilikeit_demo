@@ -1,9 +1,11 @@
 import React from "react";
 import { Container, Form, Button, Card } from "react-bootstrap";
 import { ArrowRight } from "react-bootstrap-icons";
+import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const LoginSignup = () => {
+  const navigate = useNavigate();
   return (
     <Container className="d-flex justify-content-center align-items-center vh-100">
       <Card className="p-4 shadow-lg" style={{ width: "500px", borderRadius: "12px" }}>
@@ -18,7 +20,7 @@ const LoginSignup = () => {
             <Form.Control type="password" placeholder="Enter your password" />
           </Form.Group>
           <div className="d-flex justify-content-center">
-            <Button variant="primary" className="rounded-circle d-flex justify-content-center align-items-center p-3 shadow" style={{ width: "50px", height: "50px" }}>
+            <Button variant="primary" className="rounded-circle d-flex justify-content-center align-items-center p-3 shadow" style={{ width: "50px", height: "50px" }}  onClick={() => navigate("/add-name")}>
               <ArrowRight size={20} />
             </Button>
           </div>

@@ -19,6 +19,7 @@ import UploadPicturesScreen from "./components/UploadPictures";
 import Product from "./components/Product";
 import Wishlist from "./components/WishList";
 import Layout from "./components/Layout";
+import SelectedImage from "./components/SelectedImage";
 
 const App = () => {
   return (
@@ -44,6 +45,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/add-name" element={<AddNameScreen />} />
           <Route path="/upload-pictures" element={<UploadPicturesScreen />} />
+          <Route path="/selected-image" element={<SelectedImage/>}/>
           <Route
             path="/product/:productName"
             element={
