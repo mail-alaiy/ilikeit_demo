@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
@@ -154,13 +155,17 @@ const Navbar = () => {
 
         <div className="col-3 col-lg-auto">
           <ul className="list-unstyled d-flex m-0">
-            <li className="d-none d-lg-block">
-              <a href="index.html" className="text-uppercase mx-3">Wishlist <span className="wishlist-count">(0)</span>
-              </a>
-            </li>
+          <li className="d-none d-lg-block">
+          <Link
+                          to="/wishlist"
+                          className="text-uppercase mx-3"
+                        >
+                          Wishlist
+                        </Link>
+                        </li>
             <li className="d-none d-lg-block">
               <a href="index.html" className="text-uppercase mx-3" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart"
-                aria-controls="offcanvasCart">Cart <span className="cart-count">(0)</span>
+                aria-controls="offcanvasCart">Cart 
               </a>
             </li>
             <li className="d-lg-none">

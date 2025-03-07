@@ -17,32 +17,44 @@ import Login from "./components/Login";
 import AddNameScreen from "./components/AddName";
 import UploadPicturesScreen from "./components/UploadPictures";
 import Product from "./components/Product";
+import Wishlist from "./components/WishList";
+import Layout from "./components/Layout";
 
 const App = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={
-          <>
-          <Navbar />
-            <Billboard />
-            <NewArrivals />
-            <WinterComfort />
-            <Compliments />
-            <Shirts />
-            <Tshirts />
-            <Newsletter />
-            <Footer />
-          </>
-        } />
-        <Route path="/login" element={<Login />} />
-        <Route path="/add-name" element={<AddNameScreen />} />
-        <Route path="/upload-pictures" element={<UploadPicturesScreen />} />
-        <Route path="/product/:productName" element={
-          <>
-          <Product />
-          </>} />
-      </Routes>
+      <Layout> {/* Wrap all routes with the Layout component */}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <Navbar />
+                <Billboard />
+                <NewArrivals />
+                <WinterComfort />
+                <Compliments />
+                <Shirts />
+                <Tshirts />
+                <Newsletter />
+                <Footer />
+              </>
+            }
+          />
+          <Route path="/login" element={<Login />} />
+          <Route path="/add-name" element={<AddNameScreen />} />
+          <Route path="/upload-pictures" element={<UploadPicturesScreen />} />
+          <Route
+            path="/product/:productName"
+            element={
+              <>
+                <Product />
+              </>
+            }
+          />
+          <Route path="/wishlist" element={<Wishlist />} />
+        </Routes>
+      </Layout>
     </Router>
   );
 };
