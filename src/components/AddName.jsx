@@ -50,7 +50,7 @@ const AddNameScreen = () => {
           <Modal.Title>Image Upload Guidelines</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Carousel controls={false} indicators={false} interval={600}>
+          <Carousel controls={false} indicators={false} interval={600} pause={false}>
             {[1, 2, 3, 4, 5].map((num) => (
               <Carousel.Item key={num}>
                 <div style={{ position: "relative" }}>
