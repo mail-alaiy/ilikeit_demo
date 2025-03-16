@@ -2,13 +2,33 @@ import React, { useState } from "react";
 import { Container, Form, Button, Card, Modal, Carousel } from "react-bootstrap";
 import { ArrowRight, CheckCircleFill, XCircleFill } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import "bootstrap/dist/css/bootstrap.min.css";
+import supabase from "../supabaseClient";
 
 const AddNameScreen = () => {
   const [showGuidelines, setShowGuidelines] = useState(false);
+  const [name,setName] = useState("");
   const navigate = useNavigate();
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    if (!name.trim()) {
+      alert("Please enter your name.");
+      return;
+    }
+
+    // Update Supabase Auth user
+    const { data, error } = await supabase.auth.updateUser({
+      data: { full_name: name },
+    });
+
+    if (error) {
+      console.error("Error updating name:", error.message);
+      alert("Failed to update name. Please try again.");
+      return;
+    }
+
+    console.log("User updated:", data);
     setShowGuidelines(true);
   };
 
@@ -18,6 +38,12 @@ const AddNameScreen = () => {
   };
 
   return (
+    <motion.div
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          exit={{ opacity: 0, y: -20 }} // Smooth fade-in & fade-out
+          transition={{ duration: 0.5 }}
+        >
     <Container className="d-flex justify-content-center align-items-center vh-100">
       <Card className="p-4 shadow-lg" style={{ width: "500px", borderRadius: "12px" }}>
         <h3 className="text-center mb-3" style={{ color: "rgb(29, 53, 87)", fontWeight: "600", fontSize: "30px" }}>
@@ -26,7 +52,10 @@ const AddNameScreen = () => {
         <Form>
           <Form.Group className="mb-4">
             <Form.Label>Enter Your Name</Form.Label>
-            <Form.Control type="text" placeholder="Your name" />
+            <Form.Control type="text"
+              placeholder="Your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}/>
           </Form.Group>
           <div className="d-flex justify-content-center">
             <Button
@@ -98,6 +127,7 @@ const AddNameScreen = () => {
           }`}
       </style>
     </Container>
+    </motion.div>
   );
 };
 
