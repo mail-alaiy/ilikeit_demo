@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { FaRegHeart, FaHeart } from "react-icons/fa";
+import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
@@ -7,14 +6,6 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 
 const Billboard = () => {
-  const [liked, setLiked] = useState({});
-
-  const toggleLike = (index) => {
-    setLiked((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
-  };
 
   const categories = [
     {
@@ -55,7 +46,7 @@ const Billboard = () => {
           spaceBetween={20}
           slidesPerView={3}
           navigation
-          pagination={{ clickable: true }}
+          pagination={{ clickable: true}}
           className="main-swiper py-4"
         >
           {categories.map((category, index) => (
@@ -63,9 +54,6 @@ const Billboard = () => {
               <div className="banner-item">
                 <div className="image-container">
                   <img src={category.img} alt={category.name} className="img-fluid" />
-                  <button className="heart-button" onClick={() => toggleLike(index)}>
-                    {liked[index] ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
-                  </button>
                 </div>
                 <div className="banner-content py-4 text-center">
                   <h5 className="element-title text-uppercase">{category.name}</h5>
@@ -97,6 +85,10 @@ const Billboard = () => {
         .filled-heart {
           color: red;
         }
+        .swiper-pagination {
+  display: none !important;
+}
+
       `}</style>
     </section>
   );

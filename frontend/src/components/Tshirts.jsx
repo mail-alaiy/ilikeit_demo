@@ -131,8 +131,20 @@ const Tshirts = () => {
       <style>{`
         .product-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
           gap: 20px;
+        }
+
+        @media (min-width: 1024px) {
+          .product-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          }
+        }
+
+        @media (max-width: 768px) {
+          .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
         }
 
         .product-item {
@@ -151,15 +163,20 @@ const Tshirts = () => {
         }
 
         .heart-button {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          background: none;
-          border: none;
-          font-size: 24px;
-          cursor: pointer;
-          transition: transform 0.2s ease-in-out;
-        }
+  position: absolute;
+  top: 5px;          /* Reduced from 10px to position it higher */
+  right: 5px;        /* Reduced from 10px to position it more to the right */
+  background: none;
+  border: none;
+  font-size: 18px;   /* Reduced from 24px to make the icon smaller */
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  padding: 0;        /* Remove any padding to make the clickable area match the icon size */
+  line-height: 1;    /* Ensure consistent height */
+  display: flex;     /* Helps with proper centering of the icon */
+  align-items: center;
+  justify-content: center;
+}
 
         .heart-button:hover {
           transform: scale(1.1);
@@ -171,6 +188,17 @@ const Tshirts = () => {
 
         .filled-heart {
           color: red;
+        }
+
+        h3, p {
+          margin: 5px 0;
+          font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+          h3, p {
+            font-size: 0.9rem;
+          }
         }
       `}</style>
     </section>

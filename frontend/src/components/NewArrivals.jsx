@@ -99,17 +99,36 @@ const NewArrivals = () => {
         <Swiper
           modules={[Pagination, Navigation]}
           spaceBetween={20}
-          slidesPerView={3}
+          slidesPerView={1}
           navigation
           pagination={{ clickable: true }}
+          breakpoints={{
+            576: {
+              slidesPerView: 2,
+            },
+            992: {
+              slidesPerView: 3,
+            }
+          }}
           className="product-swiper"
         >
           {products.map((product, index) => (
             <SwiperSlide key={product.id}>
               <div className="product-item" onClick={() => navigate(`/product/${encodeURIComponent(product.name)}`, { state: { product } })}>
                 <div className="image-container">
-                  <img src={product.images?.[0]?.url || "fallback-image.jpg"} alt={product.name} />
-                  <button className="heart-button" onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id, index); }}>
+                  <img 
+                    src={product.images?.[0]?.url || "fallback-image.jpg"} 
+                    alt={product.name} 
+                    className="img-fluid" 
+                  />
+                  <button 
+                    className="heart-button" 
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      toggleWishlist(product.id, index); 
+                    }}
+                    aria-label={product.wishlist ? "Remove from wishlist" : "Add to wishlist"}
+                  >
                     {product.wishlist ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
                   </button>
                 </div>
@@ -126,16 +145,19 @@ const NewArrivals = () => {
         .product-item {
           text-align: center;
           position: relative;
+          cursor: pointer;
         }
 
         .image-container {
           position: relative;
           display: inline-block;
+          width: 100%;
         }
 
-        .product-image {
+        .image-container img {
           width: 100%;
           border-radius: 10px;
+          object-fit: cover;
         }
 
         .heart-button {
@@ -147,6 +169,8 @@ const NewArrivals = () => {
           font-size: 24px;
           cursor: pointer;
           transition: transform 0.2s ease-in-out;
+          z-index: 10;
+          padding: 8px;
         }
 
         .heart-button:hover {
@@ -159,6 +183,18 @@ const NewArrivals = () => {
 
         .filled-heart {
           color: red;
+        }
+
+        @media (max-width: 767px) {
+          .heart-button {
+            font-size: 20px;
+            padding: 6px;
+          }
+          
+          .product-item h5 {
+            font-size: 1rem;
+            margin-top: 0.5rem;
+          }
         }
       `}</style>
     </section>

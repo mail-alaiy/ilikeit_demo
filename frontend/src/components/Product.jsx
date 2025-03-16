@@ -110,6 +110,20 @@ const Product = () => {
         .filled-heart {
           color: red;
         }
+          /* Add this to your style section */
+:root {
+  --swiper-navigation-size: 20px !important; /* Smaller arrow size */
+  --swiper-navigation-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  padding: 15px !important;
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  border-radius: 50% !important;
+  width: 25px !important;
+  height: 25px !important;
+}
       `}</style>
     </section>
   );
