@@ -3,7 +3,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import "swiper/css";
-import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { useNavigate } from "react-router-dom";
 
@@ -97,7 +96,7 @@ const NewArrivals = () => {
         </div>
 
         <Swiper
-          modules={[Pagination, Navigation]}
+          modules={[Navigation]}
           spaceBetween={20}
           slidesPerView={1}
           navigation

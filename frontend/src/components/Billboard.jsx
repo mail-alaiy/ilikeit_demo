@@ -2,11 +2,9 @@ import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation } from "swiper/modules";
 import "swiper/css";
-import "swiper/css/pagination";
 import "swiper/css/navigation";
 
 const Billboard = () => {
-
   const categories = [
     {
       img: "https://img.abercrombie.com/is/image/anf/KIC_122-5371-00840-200_model1.jpg?policy=product-large",
@@ -36,29 +34,47 @@ const Billboard = () => {
   ];
 
   return (
-    <section id="billboard" className="bg-light py-5">
-      <div className="container">
-        <h1 className="section-title text-center mt-4 font-bold">Featured Categories</h1>
-        <p className="text-center">Explore our curated collection of stylish and comfortable clothing</p>
+    <section id="billboard" className="bg-light py-3 py-md-5">
+      <div className="container px-3">
+        <h1 className="section-title text-center mt-3 mt-md-4 font-bold text-xl md:text-2xl">Featured Categories</h1>
+        <p className="text-center text-sm md:text-base mb-4">Explore our curated collection of stylish and comfortable clothing</p>
 
         <Swiper
-          modules={[Pagination, Navigation]}
-          spaceBetween={20}
-          slidesPerView={3}
+          modules={[Navigation]}
+          spaceBetween={10}
+          slidesPerView={1}
+          breakpoints={{
+            576: {
+              slidesPerView: 2,
+              spaceBetween: 10,
+            },
+            992: {
+              slidesPerView: 3,
+              spaceBetween: 15,
+            },
+            1200: {
+              slidesPerView: 3,
+              spaceBetween: 20,
+            }
+          }}
           navigation
-          pagination={{ clickable: true}}
-          className="main-swiper py-4"
+          pagination={{ clickable: true }}
+          className="main-swiper py-2 py-md-4"
         >
           {categories.map((category, index) => (
             <SwiperSlide key={index}>
-              <div className="banner-item">
+              <div className="banner-item rounded shadow-sm overflow-hidden h-full">
                 <div className="image-container">
-                  <img src={category.img} alt={category.name} className="img-fluid" />
+                  <img 
+                    src={category.img} 
+                    alt={category.name} 
+                    className="img-fluid w-full h-auto object-cover aspect-ratio-1"
+                  />
                 </div>
-                <div className="banner-content py-4 text-center">
-                  <h5 className="element-title text-uppercase">{category.name}</h5>
-                  <p>{category.description}</p>
-                  <a href="#" className="btn-link fs-6 text-uppercase text-decoration-none">Shop Now</a>
+                <div className="banner-content p-3 p-md-4 text-center">
+                  <h5 className="element-title text-uppercase font-bold mb-2">{category.name}</h5>
+                  <p className="text-sm md:text-base text-gray-600 mb-3">{category.description}</p>
+                  <a href="#" className="btn-link text-sm md:text-base text-uppercase text-decoration-none font-semibold hover:text-primary transition-colors">Shop Now</a>
                 </div>
               </div>
             </SwiperSlide>
@@ -66,29 +82,88 @@ const Billboard = () => {
         </Swiper>
       </div>
 
-      <style>{`
+      <style jsx>{`
         .image-container {
           position: relative;
+          overflow: hidden;
         }
-        .heart-button {
+        .image-container img {
+          transition: transform 0.3s ease;
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+        .banner-item:hover .image-container img {
+          transform: scale(1.05);
+        }
+        .banner-content {
+          background: white;
+        }
+        .banner-item {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          background: white;
+          transition: box-shadow 0.3s ease;
+        }
+        .banner-item:hover {
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .btn-link {
+          color: #333;
+          position: relative;
+          padding-bottom: 2px;
+        }
+        .btn-link:after {
+          content: "";
           position: absolute;
-          top: 10px;
-          right: 10px;
-          background: none;
-          border: none;
-          font-size: 24px;
-          cursor: pointer;
+          width: 0;
+          height: 2px;
+          bottom: 0;
+          left: 0;
+          background-color: currentColor;
+          transition: width 0.3s ease;
         }
-        .outlined-heart {
-          color: #777;
+        .btn-link:hover:after {
+          width: 100%;
         }
-        .filled-heart {
-          color: red;
+        
+        /* Enhanced navigation arrows for all devices */
+        .swiper-button-next,
+        .swiper-button-prev {
+          display: flex !important;
+          width: 40px;
+          height: 40px;
+          background: rgba(255, 255, 255, 0.8);
+          border-radius: 50%;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         }
-        .swiper-pagination {
-  display: none !important;
-}
-
+        
+        .swiper-button-next:after,
+        .swiper-button-prev:after {
+          font-size: 18px !important;
+          color: #333;
+          font-weight: bold;
+        }
+        
+        /* Mobile-specific navigation adjustments */
+        @media (max-width: 767px) {
+          .swiper-button-next,
+          .swiper-button-prev {
+            width: 30px;
+            height: 30px;
+          }
+          
+          .swiper-button-next:after,
+          .swiper-button-prev:after {
+            font-size: 14px !important;
+          }
+          
+          .swiper-pagination {
+            display: block !important;
+            margin-top: 15px;
+          }
+        }
       `}</style>
     </section>
   );
