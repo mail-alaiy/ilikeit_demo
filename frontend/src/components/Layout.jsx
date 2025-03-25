@@ -1,19 +1,20 @@
-// Layout.js
-import React from "react";
-import HeartButton from "./HeartButton"; // Adjust the path as needed
+import React, {useState} from "react";
+import QueueBar from "./Queue";
 
 const Layout = ({ children }) => {
   return (
     <div style={{ position: "relative", minHeight: "100vh" }}>
-      <main style={{ paddingBottom: "80px" }}>{children}</main> {/* Adjust padding */}
+      <main style={{ paddingBottom: "80px" }}>{children}</main>
       <div
         style={{
           position: "fixed",
-          bottom: "20px",
-          right: "20px",
+          bottom: "0",
+          left: "0",
+          width: "100%",
+          zIndex: 1060,
         }}
       >
-        <HeartButton />
+        <QueueBar />
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import TryTheFit from "./TrytheFit";
+import supabase from "../supabaseClient";
 
 const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
 const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
@@ -8,6 +10,27 @@ const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 const WinterComfort = () => {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("Failed to get user:", error.message);
+        return;
+      }
+
+      setUserId(user?.id);
+    };
+
+    getUser();
+  }, []);
+
+  console.log(userId, "userId");
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -30,16 +53,19 @@ const WinterComfort = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${AUTH_TOKEN}`
+          Authorization: `Bearer ${AUTH_TOKEN}`,
         },
         body: JSON.stringify({ query }),
       });
 
       const { data } = await response.json();
-      
+
       const updatedProducts = data.products.map((product) => ({
         ...product,
-        wishlist: JSON.parse(localStorage.getItem(`wishlist_${product.id}`)) ?? product.wishlist ?? false,
+        wishlist:
+          JSON.parse(localStorage.getItem(`wishlist_${product.id}`)) ??
+          product.wishlist ??
+          false,
       }));
 
       setProducts(updatedProducts);
@@ -57,7 +83,10 @@ const WinterComfort = () => {
       return newProducts;
     });
 
-    localStorage.setItem(`wishlist_${productId}`, JSON.stringify(updatedWishlist));
+    localStorage.setItem(
+      `wishlist_${productId}`,
+      JSON.stringify(updatedWishlist)
+    );
 
     const mutation = `
       mutation {
@@ -76,7 +105,7 @@ const WinterComfort = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${AUTH_TOKEN}`,
+          Authorization: `Bearer ${AUTH_TOKEN}`,
         },
         body: JSON.stringify({ query: mutation }),
       });
@@ -85,21 +114,100 @@ const WinterComfort = () => {
     }
   };
 
+  const handleTryTheFitClick = async (garmentId, garmentUrl) => {
+    if (!userId) {
+      console.warn("User ID not available.");
+      navigate("/login");
+      return;
+    }
+
+    const existingUrls =
+      JSON.parse(localStorage.getItem("selected_garment_url")) || [];
+
+    // Add new URL if not already present
+    if (!existingUrls.includes(garmentUrl)) {
+      existingUrls.push(garmentUrl);
+      localStorage.setItem(
+        "selected_garment_url",
+        JSON.stringify(existingUrls)
+      );
+    }
+
+    // Dispatch custom event
+    window.dispatchEvent(new Event("garmentUrlUpdated"));
+
+    const payload = {
+      user_id: userId,
+      garment_id: garmentId,
+    };
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/send-to-inference`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`, // Assuming you use the same token
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to send to inference");
+      }
+
+      console.log("Inference triggered successfully.");
+    } catch (error) {
+      console.error("Error sending to inference:", error);
+    }
+  };
+
   return (
     <section id="new-arrivals">
       <h4>Winter Comfort</h4>
       <div className="product-grid">
         {products.map((product, index) => (
-          <div className="product-item" key={product.id} onClick={() => navigate(`/product/${encodeURIComponent(product.name)}`, { state: { product } })}>
+          <div
+            className="product-item"
+            key={product.id}
+            onClick={() =>
+              navigate(`/product/${encodeURIComponent(product.name)}`, {
+                state: { product },
+              })
+            }
+          >
             <div className="image-container">
-              <img src={product.images?.[0]?.url || "fallback-image.jpg"} alt={product.name} />
-              <button className="heart-button" onClick={(e) => { e.stopPropagation(); toggleWishlist(product.id, index); }}>
-                {product.wishlist ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
+              <img
+                src={product.images?.[0]?.url || "fallback-image.jpg"}
+                alt={product.name}
+              />
+              <button
+                className="heart-button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleWishlist(product.id, index);
+                }}
+              >
+                {product.wishlist ? (
+                  <FaHeart className="filled-heart" />
+                ) : (
+                  <FaRegHeart className="outlined-heart" />
+                )}
               </button>
             </div>
             <h3>{product.name}</h3>
             <p>₹{product.price.toFixed(2)}</p>
-            <button className="add-to-cart">Add to Cart</button>
+            <div className="button-column">
+              <TryTheFit
+                onClick={(e) => {
+                  e.stopPropagation(); // prevents navigation
+                  handleTryTheFitClick(product.id, product.images?.[2]?.url);
+                }}
+              />
+              <button className="add-to-cart">Add to Cart</button>
+            </div>
           </div>
         ))}
       </div>
@@ -121,6 +229,13 @@ const WinterComfort = () => {
           position: relative;
           display: inline-block;
         }
+
+        .button-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
 
         .image-container img {
           width: 100%;

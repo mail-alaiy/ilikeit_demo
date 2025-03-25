@@ -24,11 +24,18 @@ import SelectedImage from "./components/SelectedImage";
 const App = () => {
   return (
     <Router>
-      <Layout> {/* Wrap all routes with the Layout component */}
-        <Routes>
-          <Route
-            path="/"
-            element={
+      <Routes>
+        {/* Routes WITHOUT Layout */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/add-name" element={<AddNameScreen />} />
+        <Route path="/upload-pictures" element={<UploadPicturesScreen />} />
+        <Route path="/selected-image" element={<SelectedImage />} />
+
+        {/* Routes WITH Layout */}
+        <Route
+          path="/"
+          element={
+            <Layout>
               <>
                 <Navbar />
                 <Billboard />
@@ -40,23 +47,26 @@ const App = () => {
                 <Newsletter />
                 <Footer />
               </>
-            }
-          />
-          <Route path="/login" element={<Login />} />
-          <Route path="/add-name" element={<AddNameScreen />} />
-          <Route path="/upload-pictures" element={<UploadPicturesScreen />} />
-          <Route path="/selected-image" element={<SelectedImage/>}/>
-          <Route
-            path="/product/:productName"
-            element={
-              <>
-                <Product />
-              </>
-            }
-          />
-          <Route path="/wishlist" element={<Wishlist />} />
-        </Routes>
-      </Layout>
+            </Layout>
+          }
+        />
+        <Route
+          path="/product/:productName"
+          element={
+            <Layout>
+              <Product />
+            </Layout>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <Layout>
+              <Wishlist />
+            </Layout>
+          }
+        />
+      </Routes>
     </Router>
   );
 };

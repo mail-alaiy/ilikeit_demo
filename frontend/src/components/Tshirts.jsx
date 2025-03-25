@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import TryTheFit from "./TrytheFit";
+import supabase from "../supabaseClient";
 
 const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
 const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
@@ -8,6 +10,27 @@ const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 const Tshirts = () => {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("Failed to get user:", error.message);
+        return;
+      }
+
+      setUserId(user?.id);
+    };
+
+    getUser();
+  }, []);
+
+  console.log(userId, "userId");
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -36,11 +59,14 @@ const Tshirts = () => {
       });
 
       const { data } = await response.json();
-      
+
       // Sync wishlist state with localStorage
       const updatedProducts = data.products.map((product) => ({
         ...product,
-        wishlist: JSON.parse(localStorage.getItem(`wishlist_${product.id}`)) ?? product.wishlist ?? false,
+        wishlist:
+          JSON.parse(localStorage.getItem(`wishlist_${product.id}`)) ??
+          product.wishlist ??
+          false,
       }));
 
       setProducts(updatedProducts);
@@ -58,7 +84,10 @@ const Tshirts = () => {
       return newProducts;
     });
 
-    localStorage.setItem(`wishlist_${productId}`, JSON.stringify(updatedWishlist));
+    localStorage.setItem(
+      `wishlist_${productId}`,
+      JSON.stringify(updatedWishlist)
+    );
 
     // Update backend
     const mutation = `
@@ -84,6 +113,56 @@ const Tshirts = () => {
       });
     } catch (error) {
       console.error("Error updating wishlist:", error);
+    }
+  };
+
+  const handleTryTheFitClick = async (garmentId, garmentUrl) => {
+    if (!userId) {
+      console.warn("User ID not available.");
+      navigate("/login");
+      return;
+    }
+
+    const existingUrls =
+      JSON.parse(localStorage.getItem("selected_garment_url")) || [];
+
+    // Add new URL if not already present
+    if (!existingUrls.includes(garmentUrl)) {
+      existingUrls.push(garmentUrl);
+      localStorage.setItem(
+        "selected_garment_url",
+        JSON.stringify(existingUrls)
+      );
+    }
+
+    // Dispatch custom event
+    window.dispatchEvent(new Event("garmentUrlUpdated"));
+
+    const payload = {
+      user_id: userId,
+      garment_id: garmentId,
+    };
+
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/send-to-inference`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`, // Assuming you use the same token
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to send to inference");
+      }
+
+      console.log("Inference triggered successfully.");
+    } catch (error) {
+      console.error("Error sending to inference:", error);
     }
   };
 
@@ -122,7 +201,15 @@ const Tshirts = () => {
             </div>
             <h3>{product.name}</h3>
             <p>₹{product.price.toFixed(2)}</p>
-            <button className="add-to-cart">Add to Cart</button>
+            <div className="button-column">
+              <TryTheFit
+                onClick={(e) => {
+                  e.stopPropagation(); // prevents navigation
+                  handleTryTheFitClick(product.id, product.images?.[2]?.url);
+                }}
+              />
+              <button className="add-to-cart">Add to Cart</button>
+            </div>
           </div>
         ))}
       </div>
@@ -185,6 +272,12 @@ const Tshirts = () => {
         .outlined-heart {
           color: #777; 
         }
+.button-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
 
         .filled-heart {
           color: red;
