@@ -106,7 +106,7 @@ const ImageUploadSuccessDrawer = ({ show = true, onClose }) => {
               <Card className="p-4 text-center border-0">
                 <Card.Title className="mb-4">
                   {loading
-                    ? "Loading your image..."
+                    ? "Loading preview..."
                     : "Image Upload Successful!"}
                 </Card.Title>
 

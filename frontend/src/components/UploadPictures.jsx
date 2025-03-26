@@ -7,13 +7,14 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import supabase from "../supabaseClient";
 import { popupVariants, backdropStyle } from "./Helper";
-import preset1 from "../images/option1.jpeg"
+import preset1 from "../images/option1.jpeg";
 import preset2 from "../images/option2.jpg";
 
 const UploadPicturesScreen = ({ show = true, onClose }) => {
   const [image, setImage] = useState(null);
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -23,16 +24,20 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
 
   const handleUpload = async () => {
     if (!image || !image.file) return;
+    setIsUploading(true);
 
     const formData = new FormData();
     formData.append("file", image.file);
+
     const {
       data: { user },
       error,
     } = await supabase.auth.getUser();
 
     if (error || !user) {
-      throw new Error("Failed to fetch user.");
+      alert("Failed to fetch user.");
+      setIsUploading(false);
+      return;
     }
 
     const userId = user.id;
@@ -60,6 +65,8 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
     } catch (error) {
       console.error("Upload error:", error.message);
       alert("Failed to upload image: " + error.message);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -215,7 +222,10 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
                   </Dropzone>
                 </div>
 
-                <h6 className="text-center mt-4 mb-2" style={{ color: "#1D3557" }}>
+                <h6
+                  className="text-center mt-4 mb-2"
+                  style={{ color: "#1D3557" }}
+                >
                   Or choose from these:
                 </h6>
 
@@ -261,12 +271,17 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
                     variant="primary"
                     className="rounded-circle d-flex justify-content-center align-items-center p-3 shadow-lg"
                     style={{ width: "55px", height: "55px" }}
-                    disabled={!image}
-                    onClick={() => {
-                      handleUpload();
-                      navigate("/selected-image");
-                    }}                  >
-                    <ArrowRight size={22} />
+                    disabled={!image || isUploading}
+                    onClick={handleUpload}
+                  >
+                    {isUploading ? (
+                      <div
+                        className="spinner-border spinner-border-sm text-light"
+                        role="status"
+                      ></div>
+                    ) : (
+                      <ArrowRight size={22} />
+                    )}
                   </Button>
                 </div>
 

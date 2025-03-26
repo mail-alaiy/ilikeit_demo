@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Spinner } from "react-bootstrap";
 import {
   IoCloseOutline,
   IoHeartOutline,
@@ -9,15 +9,15 @@ import {
 } from "react-icons/io5";
 import "bootstrap/dist/css/bootstrap.min.css";
 import supabase from "../supabaseClient";
-import { Spinner } from "react-bootstrap";
 
 const ImageSliderModal = ({ show = true, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [images, setImages] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [userError, setUserError] = useState(false);
   const intervalRef = useRef(null);
 
-  // Get the user once
+  // Get user on mount
   useEffect(() => {
     const getUser = async () => {
       const {
@@ -25,12 +25,18 @@ const ImageSliderModal = ({ show = true, onClose }) => {
         error,
       } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error("Failed to get user:", error.message);
+      if (error || !user) {
+        console.error("User not found or error:", error?.message);
+        setUserError(true);
+
+        setTimeout(() => {
+          window.location.href = "/login"; // adjust to your login route
+        }, 2500);
+
         return;
       }
 
-      setUserId(user?.id);
+      setUserId(user.id);
     };
 
     getUser();
@@ -52,9 +58,7 @@ const ImageSliderModal = ({ show = true, onClose }) => {
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       const data = await response.json();
       const imageUrls = data.map((img) => img.inference_image_url).reverse();
@@ -64,18 +68,15 @@ const ImageSliderModal = ({ show = true, onClose }) => {
     }
   };
 
-  // Fetch on modal open and set interval
+  // Poll for images
   useEffect(() => {
     if (show && userId) {
-      fetchImages(); // initial fetch
+      fetchImages();
+      intervalRef.current = setInterval(fetchImages, 5000);
 
-      intervalRef.current = setInterval(() => {
-        fetchImages();
-      }, 5000); // poll every 5s
-
-      return () => clearInterval(intervalRef.current); // cleanup
+      return () => clearInterval(intervalRef.current);
     } else {
-      clearInterval(intervalRef.current); // ensure cleanup when modal closes
+      clearInterval(intervalRef.current);
     }
   }, [show, userId]);
 
@@ -99,22 +100,37 @@ const ImageSliderModal = ({ show = true, onClose }) => {
       style={{ borderRadius: "1rem" }}
     >
       <Modal.Body className="p-0 bg-white position-relative d-flex flex-column align-items-center">
-        {/* Left Arrow */}
-        <div
-          className="position-absolute top-50 start-0 translate-middle-y"
-          style={{ zIndex: 1 }}
-        >
-          <ArrowButton onClick={handlePrev}>
-            <IoChevronBackOutline size={24} />
-          </ArrowButton>
-        </div>
 
-        {/* Main Image */}
-        {images.length > 0 ? (
+        {/* Left Arrow */}
+        {!userError && images.length > 0 && (
           <div
-            className="d-flex justify-content-center align-items-center p-4"
-            style={{ height: "70vh" }}
+            className="position-absolute top-50 start-0 translate-middle-y"
+            style={{ zIndex: 1 }}
           >
+            <ArrowButton onClick={handlePrev}>
+              <IoChevronBackOutline size={24} />
+            </ArrowButton>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div
+          className="d-flex justify-content-center align-items-center text-center px-4"
+          style={{ height: "70vh" }}
+        >
+          {userError ? (
+            <div className="text-center">
+              <div
+                className="fw-bold text-danger mb-3"
+                style={{ fontSize: "1.2rem" }}
+              >
+                User not found
+              </div>
+              <div style={{ fontSize: "1rem", color: "#6c757d" }}>
+                Please login first!
+              </div>
+            </div>
+          ) : images.length > 0 ? (
             <img
               src={images[currentIndex]}
               alt={`Slide ${currentIndex + 1}`}
@@ -126,43 +142,44 @@ const ImageSliderModal = ({ show = true, onClose }) => {
                 boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
               }}
             />
-          </div>
-        ) : (
+          ) : (
+            <div className="text-center">
+              <Spinner animation="border" variant="primary" className="mb-3" />
+              <div className="text-muted">Loading your latest fits...</div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Arrow */}
+        {!userError && images.length > 0 && (
           <div
-            className="d-flex flex-column justify-content-center align-items-center"
-            style={{ height: "70vh" }}
+            className="position-absolute top-50 end-0 translate-middle-y"
+            style={{ zIndex: 1 }}
           >
-            <Spinner animation="border" variant="primary" className="mb-3" />
-            <div>Loading your latest fits...</div>
+            <ArrowButton onClick={handleNext}>
+              <IoChevronForwardOutline size={24} />
+            </ArrowButton>
           </div>
         )}
 
-        {/* Right Arrow */}
-        <div
-          className="position-absolute top-50 end-0 translate-middle-y"
-          style={{ zIndex: 1 }}
-        >
-          <ArrowButton onClick={handleNext}>
-            <IoChevronForwardOutline size={24} />
-          </ArrowButton>
-        </div>
-
         {/* Bottom Buttons */}
-        <div className="d-flex justify-content-around w-50 mt-3 mb-4">
-          <IconButton
-            icon={<IoCloseOutline />}
-            color="#f44336"
-            onClick={onClose}
-          />
-          <IconButton icon={<IoHeartOutline />} color="#e91e63" />
-          <IconButton icon={<IoCartOutline />} color="#0d6efd" />
-        </div>
+        {!userError && (
+          <div className="d-flex justify-content-around w-50 mt-3 mb-4">
+            <IconButton
+              icon={<IoCloseOutline />}
+              color="#f44336"
+              onClick={onClose}
+            />
+            <IconButton icon={<IoHeartOutline />} color="#e91e63" />
+            <IconButton icon={<IoCartOutline />} color="#0d6efd" />
+          </div>
+        )}
       </Modal.Body>
     </Modal>
   );
 };
 
-// Reusable buttons
+// Reusable Buttons
 const IconButton = ({ icon, color, onClick }) => (
   <Button
     variant="light"
