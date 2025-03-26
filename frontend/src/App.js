@@ -1,9 +1,8 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from "react";
+import React, {useEffect, useState} from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-
 import Navbar from "./components/Navbar";
 import Billboard from "./components/Billboard";
 import Compliments from "./components/Compliments";
@@ -13,25 +12,84 @@ import Newsletter from "./components/Newsletter";
 import Shirts from "./components/Shirts";
 import Tshirts from "./components/Tshirts";
 import WinterComfort from "./components/WinterComfort";
-import Login from "./components/Login";
-import AddNameScreen from "./components/AddName";
-import UploadPicturesScreen from "./components/UploadPictures";
 import Product from "./components/Product";
 import Wishlist from "./components/WishList";
 import Layout from "./components/Layout";
-import SelectedImage from "./components/SelectedImage";
+import DrawerOverlay from "./components/Drawer";
+import { useDispatch, useSelector } from "react-redux";
+import { setInitialImages } from "./store/slice/uiSlice";
+import supabase from "./supabaseClient";
+
 /* Random changes */
 const App = () => {
+  const [userId, setUserId] = useState(null);
+  const dispatch = useDispatch();
+  const images = useSelector((state) => state.ui.images);
+
+  useEffect(() => {
+    const getSessionAndUser = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+  
+      if (error) {
+        console.error("Failed to get session:", error.message);
+        return;
+      }
+  
+      if (session?.user) {
+        setUserId(session.user.id);
+      }
+  
+      // Listen for auth changes (like page refresh restoring session)
+      const { data: listener } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (session?.user) {
+            setUserId(session.user.id);
+          }
+        }
+      );
+  
+      return () => {
+        listener?.subscription?.unsubscribe();
+      };
+    };
+  
+    getSessionAndUser();
+  }, []);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      if (!userId) return;
+
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API_BASE_URL}/users/${userId}/generated-images`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const imageUrls = data.map((img) => img.inference_image_url).reverse();
+        dispatch(setInitialImages(imageUrls));
+        console.log(images);
+      } catch (error) {
+        console.error('Failed to fetch images:', error);
+      }
+    };
+    fetchImages();
+  }, [userId]);
+
   return (
     <Router>
       <Routes>
-        {/* Routes WITHOUT Layout */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/add-name" element={<AddNameScreen />} />
-        <Route path="/upload-pictures" element={<UploadPicturesScreen />} />
-        <Route path="/selected-image" element={<SelectedImage />} />
-
-        {/* Routes WITH Layout */}
         <Route
           path="/"
           element={
@@ -67,6 +125,7 @@ const App = () => {
           }
         />
       </Routes>
+      <DrawerOverlay/>
     </Router>
   );
 };

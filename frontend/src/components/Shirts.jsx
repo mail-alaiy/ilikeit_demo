@@ -3,6 +3,9 @@ import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import TryTheFit from "./TrytheFit";
 import supabase from "../supabaseClient";
+import { useSelector, useDispatch } from 'react-redux';
+import { openDrawer } from "../store/slice/uiSlice";
+import { updateImagesFromAPI } from "../store/slice/uiSlice";
 
 const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
 const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
@@ -12,24 +15,39 @@ const Shirts = () => {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
+  const dispatch = useDispatch();
+  const images = useSelector((state) => state.ui.images);
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-
+    const getSessionAndUser = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+  
       if (error) {
-        console.error("Failed to get user:", error.message);
+        console.error("Failed to get session:", error.message);
         return;
       }
-
-      setUserId(user?.id);
+  
+      if (session?.user) {
+        setUserId(session.user.id);
+      }
+  
+      // Listen for auth changes (like page refresh restoring session)
+      const { data: listener } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (session?.user) {
+            setUserId(session.user.id);
+          }
+        }
+      );
+  
+      return () => {
+        listener?.subscription?.unsubscribe();
+      };
     };
-
-    getUser();
+  
+    getSessionAndUser();
   }, []);
+  
 
   console.log(userId, "userId");
 
@@ -118,9 +136,10 @@ const Shirts = () => {
   };
 
   const handleTryTheFitClick = async (garmentId, garmentUrl) => {
+    console.log(userId);
     if (!userId) {
       console.warn("User ID not available.");
-      navigate("/login");
+      dispatch(openDrawer());
       return;
     }
 
@@ -158,10 +177,14 @@ const Shirts = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to send to inference");
-      }
-
-      console.log("Inference triggered successfully.");
+              throw new Error("Failed to send to inference");
+            }
+          
+            const data = await response.json();
+            console.log("Inference triggered successfully:", data);
+            dispatch(updateImagesFromAPI([data.presigned_url
+            ]));
+            console.log(images,"Images");
     } catch (error) {
       console.error("Error sending to inference:", error);
     }

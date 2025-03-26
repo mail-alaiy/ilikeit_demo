@@ -1,22 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import React, { useState, useEffect } from "react";
+import { Modal, Button } from "react-bootstrap";
 import {
   IoCloseOutline,
   IoHeartOutline,
   IoCartOutline,
   IoChevronBackOutline,
   IoChevronForwardOutline,
-} from 'react-icons/io5';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import supabase from '../supabaseClient';
+} from "react-icons/io5";
+import "bootstrap/dist/css/bootstrap.min.css";
+import supabase from "../supabaseClient";
+import { useSelector } from "react-redux";
 
 const ImageSliderModal = ({ show = true, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [images, setImages] = useState([]);
   const [userId, setUserId] = useState(null);
-  const intervalRef = useRef(null);
+  const images = useSelector((state) => state.ui.images);
 
-  // Get the user once
   useEffect(() => {
     const getUser = async () => {
       const {
@@ -25,7 +24,7 @@ const ImageSliderModal = ({ show = true, onClose }) => {
       } = await supabase.auth.getUser();
 
       if (error) {
-        console.error('Failed to get user:', error.message);
+        console.error("Failed to get user:", error.message);
         return;
       }
 
@@ -34,47 +33,6 @@ const ImageSliderModal = ({ show = true, onClose }) => {
 
     getUser();
   }, []);
-
-  // Fetch images from API
-  useEffect(() => {
-    const fetchImages = async () => {
-      if (!userId) return;
-
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_BASE_URL}/users/${userId}/generated-images`,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        const imageUrls = data.map((img) => img.inference_image_url).reverse();
-        setImages(imageUrls);
-      } catch (error) {
-        console.error('Failed to fetch images:', error);
-      }
-    };
-
-    if (show && userId) {
-      fetchImages(); // initial fetch
-
-      intervalRef.current = setInterval(fetchImages, 5000); // poll every 5s
-
-      return () => clearInterval(intervalRef.current); // cleanup
-    }
-
-    // Ensure cleanup when modal closes
-    return () => clearInterval(intervalRef.current);
-  }, [show, userId]);
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -93,44 +51,56 @@ const ImageSliderModal = ({ show = true, onClose }) => {
       backdrop="static"
       keyboard={true}
       className="image-slider-modal"
-      style={{ borderRadius: '1rem' }}
     >
-      <Modal.Body className="p-0 bg-white position-relative d-flex flex-column align-items-center">
+      <Modal.Body
+        className="bg-white position-relative d-flex flex-column align-items-center justify-content-center"
+        style={{
+          padding: "2rem",
+          borderRadius: "1rem",
+          backgroundColor: "#f9f9f9",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+        }}
+      >
         {/* Left Arrow */}
-        <div className="position-absolute top-50 start-0 translate-middle-y" style={{ zIndex: 1 }}>
+        <div
+          className="position-absolute top-50 start-0 translate-middle-y"
+          style={{ zIndex: 2 }}
+        >
           <ArrowButton onClick={handlePrev}>
             <IoChevronBackOutline size={24} />
           </ArrowButton>
         </div>
 
-        {/* Main Image */}
+        {/* Image */}
         {images.length > 0 ? (
-          <div className="d-flex justify-content-center align-items-center p-4" style={{ height: '70vh' }}>
-            <img
-              src={images[currentIndex]}
-              alt={`Slide ${currentIndex + 1}`}
-              style={{
-                maxHeight: '100%',
-                maxWidth: '100%',
-                objectFit: 'contain',
-                borderRadius: '1rem',
-                boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
-              }}
-            />
-          </div>
+          <img
+            src={images[currentIndex]}
+            alt={`Image ${currentIndex + 1}`}
+            style={{
+              maxHeight: "70vh",
+              maxWidth: "100%",
+              objectFit: "contain",
+              borderRadius: "1rem",
+              transition: "all 0.3s ease-in-out",
+              boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+            }}
+          />
         ) : (
-          <div className="my-5">Loading images...</div>
+          <div className="my-5 text-muted">Loading images...</div>
         )}
 
         {/* Right Arrow */}
-        <div className="position-absolute top-50 end-0 translate-middle-y" style={{ zIndex: 1 }}>
+        <div
+          className="position-absolute top-50 end-0 translate-middle-y"
+          style={{ zIndex: 2 }}
+        >
           <ArrowButton onClick={handleNext}>
             <IoChevronForwardOutline size={24} />
           </ArrowButton>
         </div>
 
         {/* Bottom Buttons */}
-        <div className="d-flex justify-content-around w-50 mt-3 mb-4">
+        <div className="d-flex justify-content-around gap-4 mt-4">
           <IconButton icon={<IoCloseOutline />} color="#f44336" onClick={onClose} />
           <IconButton icon={<IoHeartOutline />} color="#e91e63" />
           <IconButton icon={<IoCartOutline />} color="#0d6efd" />
@@ -140,36 +110,45 @@ const ImageSliderModal = ({ show = true, onClose }) => {
   );
 };
 
-// Reusable buttons
+// Icon Button
 const IconButton = ({ icon, color, onClick }) => (
   <Button
     variant="light"
-    className="rounded-circle shadow d-flex align-items-center justify-content-center"
-    style={{
-      width: '50px',
-      height: '50px',
-      color,
-      backgroundColor: 'white',
-      border: 'none',
-    }}
     onClick={onClick}
+    className="rounded-circle d-flex align-items-center justify-content-center"
+    style={{
+      width: "52px",
+      height: "52px",
+      color,
+      backgroundColor: "#fff",
+      border: "1px solid #ddd",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+      transition: "transform 0.2s ease-in-out",
+    }}
+    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
   >
     {icon}
   </Button>
 );
 
+// Arrow Button
 const ArrowButton = ({ onClick, children }) => (
   <Button
     variant="light"
     onClick={onClick}
-    className="rounded-circle shadow d-flex align-items-center justify-content-center"
+    className="rounded-circle d-flex align-items-center justify-content-center"
     style={{
-      width: '40px',
-      height: '40px',
-      color: '#000',
-      backgroundColor: 'white',
-      border: 'none',
+      width: "44px",
+      height: "44px",
+      color: "#000",
+      backgroundColor: "#fff",
+      border: "1px solid #ddd",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+      transition: "transform 0.2s ease-in-out",
     }}
+    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
   >
     {children}
   </Button>

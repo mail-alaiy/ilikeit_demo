@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Card, Button, Image, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "react-bootstrap-icons";
 import TryTheFit from "./TrytheFit";
 import supabase from "../supabaseClient";
 import { popupVariants, backdropStyle } from "./Helper";
+import { useDispatch } from "react-redux";
+import { closeDrawer } from "../store/slice/uiSlice";
 
-const ImageUploadSuccessDrawer = ({ show = true, onClose }) => {
-  const navigate = useNavigate();
+const ImageUploadSuccessDrawer = ({ show = true}) => {
+  const dispatch = useDispatch();
   const [imageUrl, setImageUrl] = useState(null);
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true); // <- new loading state
@@ -66,7 +67,7 @@ const ImageUploadSuccessDrawer = ({ show = true, onClose }) => {
       {show && (
         <motion.div
           style={backdropStyle}
-          onClick={onClose}
+          onClick={() => dispatch(closeDrawer())}
           initial="hidden"
           animate="visible"
           exit="exit"
@@ -89,7 +90,7 @@ const ImageUploadSuccessDrawer = ({ show = true, onClose }) => {
           >
             <Button
               variant="light"
-              onClick={onClose}
+              onClick={() => dispatch(closeDrawer())}
               style={{
                 position: "absolute",
                 top: "10px",
@@ -106,7 +107,7 @@ const ImageUploadSuccessDrawer = ({ show = true, onClose }) => {
               <Card className="p-4 text-center border-0">
                 <Card.Title className="mb-4">
                   {loading
-                    ? "Loading preview..."
+                    ? "Loading..."
                     : "Image Upload Successful!"}
                 </Card.Title>
 
@@ -139,7 +140,7 @@ const ImageUploadSuccessDrawer = ({ show = true, onClose }) => {
                   )
                 )}
 
-                {!loading && <TryTheFit onClick={() => navigate("/")} />}
+                {!loading && <TryTheFit onClick={() => dispatch(closeDrawer())} />}
               </Card>
             </div>
           </motion.div>

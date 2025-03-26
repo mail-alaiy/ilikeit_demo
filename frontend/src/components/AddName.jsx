@@ -5,12 +5,15 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import supabase from '../supabaseClient';
 import { popupVariants, backdropStyle } from "./Helper";
+import { useSelector, useDispatch } from 'react-redux';
+import { openDrawer, closeDrawer, nextStep } from "../store/slice/uiSlice";
 
 const AddNameScreen = ({ show = true, onClose }) => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showGuidelines, setShowGuidelines] = useState(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const handleResize = () => {
@@ -67,7 +70,7 @@ const AddNameScreen = ({ show = true, onClose }) => {
 
   const handleProceed = () => {
     setShowGuidelines(false);
-    navigate("/upload-pictures");
+    dispatch(nextStep());
   };
 
   return (
@@ -75,7 +78,7 @@ const AddNameScreen = ({ show = true, onClose }) => {
       {show && (
         <motion.div
           style={backdropStyle}
-          onClick={onClose}
+          onClick={() => dispatch(closeDrawer())}
           initial="hidden"
           animate="visible"
           exit="exit"
@@ -98,7 +101,7 @@ const AddNameScreen = ({ show = true, onClose }) => {
           >
             <Button
               variant="light"
-              onClick={onClose}
+              onClick={() => dispatch(closeDrawer())}
               style={{
                 position: "absolute",
                 top: "10px",
@@ -145,12 +148,6 @@ const AddNameScreen = ({ show = true, onClose }) => {
                 <h4 className="text-center mb-2" style={{ fontSize: "1.8rem" }}>
                   Image Upload Guidelines
                 </h4>
-                {error && (
-                  <Alert variant="danger" className="text-center">
-                    {error}
-                  </Alert>
-                )}
-
                 <Carousel
                   controls={false}
                   indicators={false}

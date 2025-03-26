@@ -9,12 +9,15 @@ import supabase from "../supabaseClient";
 import { popupVariants, backdropStyle } from "./Helper";
 import preset1 from "../images/option1.jpeg";
 import preset2 from "../images/option2.jpg";
+import { useSelector, useDispatch } from 'react-redux';
+import { closeDrawer, nextStep } from "../store/slice/uiSlice";
 
 const UploadPicturesScreen = ({ show = true, onClose }) => {
   const [image, setImage] = useState(null);
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isUploading, setIsUploading] = useState(false);
+  const dispatch = useDispatch();
 
   const handleDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -61,7 +64,7 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
 
       const data = await response.json();
       console.log("Upload successful:", data);
-      navigate("/selected-image");
+      dispatch(nextStep());
     } catch (error) {
       console.error("Upload error:", error.message);
       alert("Failed to upload image: " + error.message);
@@ -92,7 +95,7 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
       {show && (
         <motion.div
           style={backdropStyle}
-          onClick={onClose}
+          onClick={() => dispatch(closeDrawer())}
           initial="hidden"
           animate="visible"
           exit="exit"
@@ -115,7 +118,7 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
           >
             <Button
               variant="light"
-              onClick={onClose}
+              onClick={() => dispatch(closeDrawer())}
               style={{
                 position: "absolute",
                 top: "10px",
