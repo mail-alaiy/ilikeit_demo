@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import React, { useState, useEffect, useRef } from "react";
+import { Modal, Button } from "react-bootstrap";
 import {
   IoCloseOutline,
   IoHeartOutline,
   IoCartOutline,
   IoChevronBackOutline,
   IoChevronForwardOutline,
-} from 'react-icons/io5';
-import 'bootstrap/dist/css/bootstrap.min.css';
+} from "react-icons/io5";
+import "bootstrap/dist/css/bootstrap.min.css";
 import supabase from "../supabaseClient";
+import { Spinner } from "react-bootstrap";
 
 const ImageSliderModal = ({ show = true, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -43,10 +44,10 @@ const ImageSliderModal = ({ show = true, onClose }) => {
       const response = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/users/${userId}/generated-images`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.REACT_APP_API_KEY}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
           },
         }
       );
@@ -56,10 +57,10 @@ const ImageSliderModal = ({ show = true, onClose }) => {
       }
 
       const data = await response.json();
-      const imageUrls = data.map(img => img.inference_image_url).reverse();
+      const imageUrls = data.map((img) => img.inference_image_url).reverse();
       setImages(imageUrls);
     } catch (error) {
-      console.error('Failed to fetch images:', error);
+      console.error("Failed to fetch images:", error);
     }
   };
 
@@ -79,11 +80,11 @@ const ImageSliderModal = ({ show = true, onClose }) => {
   }, [show, userId]);
 
   const handleNext = () => {
-    setCurrentIndex(prev => (prev + 1) % images.length);
+    setCurrentIndex((prev) => (prev + 1) % images.length);
   };
 
   const handlePrev = () => {
-    setCurrentIndex(prev => (prev - 1 + images.length) % images.length);
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
   return (
@@ -95,11 +96,14 @@ const ImageSliderModal = ({ show = true, onClose }) => {
       backdrop="static"
       keyboard={true}
       className="image-slider-modal"
-      style={{ borderRadius: '1rem' }}
+      style={{ borderRadius: "1rem" }}
     >
       <Modal.Body className="p-0 bg-white position-relative d-flex flex-column align-items-center">
         {/* Left Arrow */}
-        <div className="position-absolute top-50 start-0 translate-middle-y" style={{ zIndex: 1 }}>
+        <div
+          className="position-absolute top-50 start-0 translate-middle-y"
+          style={{ zIndex: 1 }}
+        >
           <ArrowButton onClick={handlePrev}>
             <IoChevronBackOutline size={24} />
           </ArrowButton>
@@ -107,25 +111,37 @@ const ImageSliderModal = ({ show = true, onClose }) => {
 
         {/* Main Image */}
         {images.length > 0 ? (
-          <div className="d-flex justify-content-center align-items-center p-4" style={{ height: '70vh' }}>
+          <div
+            className="d-flex justify-content-center align-items-center p-4"
+            style={{ height: "70vh" }}
+          >
             <img
               src={images[currentIndex]}
               alt={`Slide ${currentIndex + 1}`}
               style={{
-                maxHeight: '100%',
-                maxWidth: '100%',
-                objectFit: 'contain',
-                borderRadius: '1rem',
-                boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
+                maxHeight: "100%",
+                maxWidth: "100%",
+                objectFit: "contain",
+                borderRadius: "1rem",
+                boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
               }}
             />
           </div>
         ) : (
-          <div className="my-5">Loading images...</div>
+          <div
+            className="d-flex flex-column justify-content-center align-items-center"
+            style={{ height: "70vh" }}
+          >
+            <Spinner animation="border" variant="primary" className="mb-3" />
+            <div>Loading your latest fits...</div>
+          </div>
         )}
 
         {/* Right Arrow */}
-        <div className="position-absolute top-50 end-0 translate-middle-y" style={{ zIndex: 1 }}>
+        <div
+          className="position-absolute top-50 end-0 translate-middle-y"
+          style={{ zIndex: 1 }}
+        >
           <ArrowButton onClick={handleNext}>
             <IoChevronForwardOutline size={24} />
           </ArrowButton>
@@ -133,7 +149,11 @@ const ImageSliderModal = ({ show = true, onClose }) => {
 
         {/* Bottom Buttons */}
         <div className="d-flex justify-content-around w-50 mt-3 mb-4">
-          <IconButton icon={<IoCloseOutline />} color="#f44336" onClick={onClose} />
+          <IconButton
+            icon={<IoCloseOutline />}
+            color="#f44336"
+            onClick={onClose}
+          />
           <IconButton icon={<IoHeartOutline />} color="#e91e63" />
           <IconButton icon={<IoCartOutline />} color="#0d6efd" />
         </div>
@@ -148,11 +168,11 @@ const IconButton = ({ icon, color, onClick }) => (
     variant="light"
     className="rounded-circle shadow d-flex align-items-center justify-content-center"
     style={{
-      width: '50px',
-      height: '50px',
+      width: "50px",
+      height: "50px",
       color,
-      backgroundColor: 'white',
-      border: 'none',
+      backgroundColor: "white",
+      border: "none",
     }}
     onClick={onClick}
   >
@@ -166,11 +186,11 @@ const ArrowButton = ({ onClick, children }) => (
     onClick={onClick}
     className="rounded-circle shadow d-flex align-items-center justify-content-center"
     style={{
-      width: '40px',
-      height: '40px',
-      color: '#000',
-      backgroundColor: 'white',
-      border: 'none',
+      width: "40px",
+      height: "40px",
+      color: "#000",
+      backgroundColor: "white",
+      border: "none",
     }}
   >
     {children}

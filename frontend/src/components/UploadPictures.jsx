@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import supabase from "../supabaseClient";
 import { popupVariants, backdropStyle } from "./Helper";
+import preset1 from "../images/option1.jpeg"
+import preset2 from "../images/option2.jpg";
 
 const UploadPicturesScreen = ({ show = true, onClose }) => {
   const [image, setImage] = useState(null);
@@ -74,7 +76,6 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -105,7 +106,6 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
               flexDirection: "column",
             }}
           >
-            {/* Close Button */}
             <Button
               variant="light"
               onClick={onClose}
@@ -121,7 +121,6 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
               <X size={20} />
             </Button>
 
-            {/* Content Container */}
             <div
               style={{
                 width: "100%",
@@ -130,7 +129,6 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
                 flexGrow: 1,
               }}
             >
-              {/* Content */}
               <div
                 style={{
                   width: "100%",
@@ -151,6 +149,7 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
                 >
                   Upload Your Best Shot!
                 </h3>
+
                 <div className="d-flex justify-content-center">
                   <Dropzone
                     onDrop={handleDrop}
@@ -216,6 +215,47 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
                   </Dropzone>
                 </div>
 
+                <h6 className="text-center mt-4 mb-2" style={{ color: "#1D3557" }}>
+                  Or choose from these:
+                </h6>
+
+                <div className="d-flex justify-content-center gap-3">
+                  {[preset1, preset2].map((localImg, idx) => (
+                    <img
+                      key={idx}
+                      src={localImg}
+                      alt={`Preset ${idx + 1}`}
+                      onClick={async () => {
+                        const res = await fetch(localImg);
+                        const blob = await res.blob();
+                        const file = new File([blob], `preset-${idx + 1}.jpg`, {
+                          type: blob.type,
+                        });
+                        const preview = URL.createObjectURL(file);
+                        setImage({ file, preview });
+                      }}
+                      style={{
+                        width: "90px",
+                        height: "90px",
+                        objectFit: "cover",
+                        borderRadius: "10px",
+                        cursor: "pointer",
+                        border:
+                          image?.preview === localImg
+                            ? "3px solid #1D3557"
+                            : "1px solid #ccc",
+                        transition: "transform 0.2s ease-in-out",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.transform = "scale(1.05)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.transform = "scale(1)")
+                      }
+                    />
+                  ))}
+                </div>
+
                 <div className="d-flex justify-content-center mt-4">
                   <Button
                     variant="primary"
@@ -225,8 +265,7 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
                     onClick={() => {
                       handleUpload();
                       navigate("/selected-image");
-                    }}
-                  >
+                    }}                  >
                     <ArrowRight size={22} />
                   </Button>
                 </div>

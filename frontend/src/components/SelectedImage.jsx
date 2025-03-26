@@ -1,38 +1,41 @@
-import React, {useState, useEffect} from "react";
-import { Card, Button, Image } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Card, Button, Image, Spinner } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "react-bootstrap-icons";
 import TryTheFit from "./TrytheFit";
-import supabase from '../supabaseClient';
+import supabase from "../supabaseClient";
 import { popupVariants, backdropStyle } from "./Helper";
 
-const ImageUploadSuccessDrawer = ({ show = true, onClose}) => {
+const ImageUploadSuccessDrawer = ({ show = true, onClose }) => {
   const navigate = useNavigate();
   const [imageUrl, setImageUrl] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(true); // <- new loading state
 
   useEffect(() => {
     const getUser = async () => {
       const {
-        data: { user }, error
+        data: { user },
+        error,
       } = await supabase.auth.getUser();
-  
+
       if (error) {
         console.error("Failed to get user:", error.message);
         return;
       }
-  
+
       setUserId(user?.id);
     };
-  
+
     getUser();
   }, []);
 
   useEffect(() => {
     const fetchUserImage = async () => {
       try {
+        setLoading(true); // <- start loading
         const response = await fetch(
           `${process.env.REACT_APP_API_BASE_URL}/users/${userId}/try-on-image`,
           {
@@ -48,6 +51,8 @@ const ImageUploadSuccessDrawer = ({ show = true, onClose}) => {
         setImageUrl(data.image);
       } catch (error) {
         console.error("Error fetching image:", error);
+      } finally {
+        setLoading(false); // <- stop loading
       }
     };
 
@@ -55,7 +60,6 @@ const ImageUploadSuccessDrawer = ({ show = true, onClose}) => {
       fetchUserImage();
     }
   }, [show, userId]);
-
 
   return (
     <AnimatePresence>
@@ -83,7 +87,6 @@ const ImageUploadSuccessDrawer = ({ show = true, onClose}) => {
               flexDirection: "column",
             }}
           >
-            {/* Close Button */}
             <Button
               variant="light"
               onClick={onClose}
@@ -101,18 +104,42 @@ const ImageUploadSuccessDrawer = ({ show = true, onClose}) => {
 
             <div style={{ overflowY: "auto", flexGrow: 1 }}>
               <Card className="p-4 text-center border-0">
-                <Card.Title className="mb-4">Image Upload Successful!</Card.Title>
-                {imageUrl && (
-                  <Image
-                    src={imageUrl}
-                    alt="Uploaded"
-                    fluid
-                    rounded
-                    style={{ maxHeight: "300px", objectFit: "contain" }}
-                    className="mb-4"
-                  />
+                <Card.Title className="mb-4">
+                  {loading
+                    ? "Loading your image..."
+                    : "Image Upload Successful!"}
+                </Card.Title>
+
+                {loading ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      height: "300px", // Fixed height to center within the card
+                    }}
+                  >
+                    <Spinner
+                      animation="border"
+                      variant="primary"
+                      className="mb-3"
+                    />
+                  </div>
+                ) : (
+                  imageUrl && (
+                    <Image
+                      src={imageUrl}
+                      alt="Uploaded"
+                      fluid
+                      rounded
+                      style={{ maxHeight: "300px", objectFit: "contain" }}
+                      className="mb-4"
+                    />
+                  )
                 )}
-                <TryTheFit onClick={() => navigate("/")}/>
+
+                {!loading && <TryTheFit onClick={() => navigate("/")} />}
               </Card>
             </div>
           </motion.div>
