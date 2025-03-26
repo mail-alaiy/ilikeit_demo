@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Form, Button, Card, Alert, Spinner } from "react-bootstrap";
+import { Form, Button, Alert, Spinner } from "react-bootstrap";
 import { ArrowRight, X } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import supabase from "../supabaseClient";
 import { backdropStyle } from "./Helper";
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  closeDrawer,
+  nextStep,
+} from "../store/slice/uiSlice";
 
 const popupVariants = {
   hidden: { y: "100%" },
@@ -18,14 +23,16 @@ const popupVariants = {
   },
 };
 
-const LoginSignupModal = ({ show = true, onClose }) => {
-  const navigate = useNavigate();
+const LoginSignupModal = ({ show = true}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const dispatch = useDispatch();
+  const drawer = useSelector((state) => state.ui.drawer);
+  console.log(drawer);
 
   useEffect(() => {
     const handleResize = () => {
@@ -54,7 +61,7 @@ const LoginSignupModal = ({ show = true, onClose }) => {
       }
 
       setTimeout(() => {
-        navigate("/add-name");
+        dispatch(nextStep());
       }, 500);
     } catch (err) {
       setError(err.message);
@@ -86,7 +93,7 @@ const LoginSignupModal = ({ show = true, onClose }) => {
       {show && (
         <motion.div
           style={backdropStyle}
-          onClick={onClose}
+          onClick={() => dispatch(closeDrawer())}
           initial="hidden"
           animate="visible"
           exit="exit"
@@ -110,7 +117,7 @@ const LoginSignupModal = ({ show = true, onClose }) => {
             {/* Close Button */}
             <Button
               variant="light"
-              onClick={onClose}
+              onClick={() => dispatch(closeDrawer())}
               style={{
                 position: "absolute",
                 top: "10px",
