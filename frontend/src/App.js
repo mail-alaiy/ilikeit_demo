@@ -20,7 +20,7 @@ import Product from "./components/Product";
 import Wishlist from "./components/WishList";
 import Layout from "./components/Layout";
 import SelectedImage from "./components/SelectedImage";
-
+/* Random changes */
 const App = () => {
   return (
     <Router>
