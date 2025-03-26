@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Alert, Spinner, Carousel, Modal } from "react-bootstrap";
+import { Button, Alert, Carousel } from "react-bootstrap";
 import { X, CheckCircleFill, XCircleFill } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,50 +22,48 @@ const AddNameScreen = ({ show = true, onClose }) => {
   }, []);
 
   useEffect(() => {
-    const postUser= async () => {
+    const postUser = async () => {
       try {
-        // Step 1: Get current user from Supabase Auth
         const {
           data: { user },
           error
         } = await supabase.auth.getUser();
-    
+
         if (error || !user) {
           throw new Error("Failed to fetch user.");
         }
 
         const user_id_by_brand = user.id;
         const name = user.user_metadata?.name || user.email;
-    
-        // Step 3: Call FastAPI backend
+
         const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/users/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${process.env.REACT_APP_API_KEY}` // brand-specific API key
+            "Authorization": `Bearer ${process.env.REACT_APP_API_KEY}`
           },
           body: JSON.stringify({
             name,
             user_id_by_brand
           })
         });
-    
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.detail || "Failed to create user.");
         }
-    
+
         const newUser = await response.json();
         console.log("User successfully created:", newUser);
-        navigate("/upload-pictures")
-  
+
       } catch (err) {
         console.error("Error during user creation:", err.message);
+        setError(err.message);
       }
     };
 
     postUser();
-  },[]);
+  }, []);
 
   const handleProceed = () => {
     setShowGuidelines(false);
@@ -98,7 +96,6 @@ const AddNameScreen = ({ show = true, onClose }) => {
               flexDirection: "column",
             }}
           >
-            {/* Close Button */}
             <Button
               variant="light"
               onClick={onClose}
@@ -114,7 +111,6 @@ const AddNameScreen = ({ show = true, onClose }) => {
               <X size={20} />
             </Button>
 
-            {/* Content Container */}
             <div
               style={{
                 width: "100%",
@@ -123,7 +119,6 @@ const AddNameScreen = ({ show = true, onClose }) => {
                 flexGrow: 1,
               }}
             >
-              {/* Content */}
               <div
                 style={{
                   width: "100%",
@@ -156,7 +151,6 @@ const AddNameScreen = ({ show = true, onClose }) => {
                   </Alert>
                 )}
 
-                {/* Guidelines Carousel */}
                 <Carousel
                   controls={false}
                   indicators={false}
@@ -222,6 +216,7 @@ const AddNameScreen = ({ show = true, onClose }) => {
                 </p>
               </div>
             </div>
+
             <style>
               {`.correct-label:hover, .wrong-label:hover { transform: scale(1.05); }`}
             </style>
