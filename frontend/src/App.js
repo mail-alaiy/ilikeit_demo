@@ -19,6 +19,7 @@ import DrawerOverlay from "./components/Drawer";
 import { useDispatch, useSelector } from "react-redux";
 import { setInitialImages } from "./store/slice/uiSlice";
 import supabase from "./supabaseClient";
+import Grid from "./components/Grid";
 
 /* Random changes */
 const App = () => {
@@ -121,6 +122,14 @@ const App = () => {
           element={
             <Layout>
               <Wishlist />
+            </Layout>
+          }
+        />
+        <Route
+          path="/fits"
+          element={
+            <Layout>
+              <Grid/>
             </Layout>
           }
         />

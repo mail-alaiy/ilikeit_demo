@@ -1,4 +1,3 @@
-
 export const backdropStyle = {
     position: "fixed",
     top: 0,

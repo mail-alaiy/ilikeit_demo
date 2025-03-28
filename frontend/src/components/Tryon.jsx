@@ -10,11 +10,14 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import supabase from "../supabaseClient";
 import { useSelector } from "react-redux";
+import { IoGridOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 const ImageSliderModal = ({ show = true, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userId, setUserId] = useState(null);
   const images = useSelector((state) => state.ui.images);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getUser = async () => {
@@ -101,9 +104,18 @@ const ImageSliderModal = ({ show = true, onClose }) => {
 
         {/* Bottom Buttons */}
         <div className="d-flex justify-content-around gap-4 mt-4">
-          <IconButton icon={<IoCloseOutline />} color="#f44336" onClick={onClose} />
+          <IconButton
+            icon={<IoCloseOutline />}
+            color="#f44336"
+            onClick={onClose}
+          />
           <IconButton icon={<IoHeartOutline />} color="#e91e63" />
           <IconButton icon={<IoCartOutline />} color="#0d6efd" />
+          <IconButton
+            icon={<IoGridOutline />}
+            color="#6c757d"
+            onClick={() => { onClose() ; navigate("/fits")}}
+          />
         </div>
       </Modal.Body>
     </Modal>
