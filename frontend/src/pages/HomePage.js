@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import Navbar from "../components/Navbar";
 import Billboard from "../components/Billboard";
 import Compliments from "../components/Compliments";
@@ -14,15 +14,21 @@ const HomePage = () => {
     <>
       <Navbar />
       <Billboard />
-      <NewArrivals />
-      <WinterComfort />
+      <section id="winter-comfort">
+        <WinterComfort />
+      </section>
+      <section id="shirts">
+        <Shirts />
+      </section>
+      <section id="tshirts">
+        <Tshirts />
+      </section>
       <Compliments />
-      <Shirts />
-      <Tshirts />
+      <NewArrivals />
       <Newsletter />
       <Footer />
     </>
   );
 };
 
-export default HomePage; 
+export default HomePage;
