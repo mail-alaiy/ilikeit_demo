@@ -84,7 +84,7 @@ const App = () => {
       }
     };
     fetchImages();
-  }, [userId, dispatch, images]);
+  }, [userId, dispatch]);
 
   return (
     <Router>
