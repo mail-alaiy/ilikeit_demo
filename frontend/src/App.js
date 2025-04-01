@@ -1,27 +1,20 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
-import Navbar from "./components/Navbar";
-import Billboard from "./components/Billboard";
-import Compliments from "./components/Compliments";
-import Footer from "./components/Footer";
-import NewArrivals from "./components/NewArrivals";
-import Newsletter from "./components/Newsletter";
-import Shirts from "./components/Shirts";
-import Tshirts from "./components/Tshirts";
-import WinterComfort from "./components/WinterComfort";
-import Product from "./components/Product";
-import Wishlist from "./components/WishList";
 import Layout from "./components/Layout";
 import DrawerOverlay from "./components/Drawer";
 import { useDispatch, useSelector } from "react-redux";
 import { setInitialImages } from "./store/slice/uiSlice";
 import supabase from "./supabaseClient";
-import Grid from "./components/Grid";
 
-/* Random changes */
+// Import pages
+import HomePage from "./pages/HomePage";
+import ProductPage from "./pages/ProductPage";
+import WishlistPage from "./pages/WishlistPage";
+import FitsPage from "./pages/FitsPage";
+
 const App = () => {
   const [userId, setUserId] = useState(null);
   const dispatch = useDispatch();
@@ -29,17 +22,20 @@ const App = () => {
 
   useEffect(() => {
     const getSessionAndUser = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-  
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
       if (error) {
         console.error("Failed to get session:", error.message);
         return;
       }
-  
+
       if (session?.user) {
         setUserId(session.user.id);
       }
-  
+
       // Listen for auth changes (like page refresh restoring session)
       const { data: listener } = supabase.auth.onAuthStateChange(
         async (event, session) => {
@@ -48,12 +44,12 @@ const App = () => {
           }
         }
       );
-  
+
       return () => {
         listener?.subscription?.unsubscribe();
       };
     };
-  
+
     getSessionAndUser();
   }, []);
 
@@ -65,9 +61,9 @@ const App = () => {
         const response = await fetch(
           `${process.env.REACT_APP_API_BASE_URL}/users/${userId}/generated-images`,
           {
-            method: 'GET',
+            method: "GET",
             headers: {
-              'Content-Type': 'application/json',
+              "Content-Type": "application/json",
               Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
             },
           }
@@ -82,11 +78,11 @@ const App = () => {
         dispatch(setInitialImages(imageUrls));
         console.log(images);
       } catch (error) {
-        console.error('Failed to fetch images:', error);
+        console.error("Failed to fetch images:", error);
       }
     };
     fetchImages();
-  }, [userId]);
+  }, [userId, dispatch, images]);
 
   return (
     <Router>
@@ -95,17 +91,7 @@ const App = () => {
           path="/"
           element={
             <Layout>
-              <>
-                <Navbar />
-                <Billboard />
-                <NewArrivals />
-                <WinterComfort />
-                <Compliments />
-                <Shirts />
-                <Tshirts />
-                <Newsletter />
-                <Footer />
-              </>
+              <HomePage />
             </Layout>
           }
         />
@@ -113,7 +99,7 @@ const App = () => {
           path="/product/:productName"
           element={
             <Layout>
-              <Product />
+              <ProductPage />
             </Layout>
           }
         />
@@ -121,7 +107,7 @@ const App = () => {
           path="/wishlist"
           element={
             <Layout>
-              <Wishlist />
+              <WishlistPage />
             </Layout>
           }
         />
@@ -129,12 +115,12 @@ const App = () => {
           path="/fits"
           element={
             <Layout>
-              <Grid/>
+              <FitsPage />
             </Layout>
           }
         />
       </Routes>
-      <DrawerOverlay/>
+      <DrawerOverlay />
     </Router>
   );
 };
