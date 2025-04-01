@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import "./App.css";
 import Layout from "./components/Layout";
 import DrawerOverlay from "./components/Drawer";
@@ -14,6 +15,7 @@ import HomePage from "./pages/HomePage";
 import ProductPage from "./pages/ProductPage";
 import WishlistPage from "./pages/WishlistPage";
 import FitsPage from "./pages/FitsPage";
+import CartPage from "./pages/CartPage";
 
 const App = () => {
   const [userId, setUserId] = useState(null);
@@ -108,6 +110,14 @@ const App = () => {
           element={
             <Layout>
               <WishlistPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/cart"
+          element={
+            <Layout>
+              <CartPage />
             </Layout>
           }
         />

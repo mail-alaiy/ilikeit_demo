@@ -3,6 +3,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import logo from "../images/logo.jpg";
 
+const scrollToSection = (id) => {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+};
+
 const Navbar = () => {
   return (
     <>
@@ -51,7 +55,7 @@ const Navbar = () => {
           <div className="d-flex justify-content-between align-items-center w-100">
             {/* Logo */}
             <div className="navbar-brand me-0">
-              <a className="text-white" href="index.html">
+              <Link to="/" className="text-white">
                 <img
                   src={logo}
                   alt="Tom Tailor India"
@@ -62,7 +66,7 @@ const Navbar = () => {
                   }}
                   className="img-fluid"
                 />
-              </a>
+              </Link>
             </div>
 
             {/* Desktop Menu */}
@@ -81,15 +85,12 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="text-uppercase mx-3"
-                    data-bs-toggle="offcanvas"
-                    data-bs-target="#offcanvasCart"
-                    aria-controls="offcanvasCart"
-                  >
+                <Link
+  to="/cart" // The route you want to navigate to
+  className="text-uppercase mx-3"
+>
                     Cart
-                  </a>
+                  </Link>
                 </li>
                 <li className="search-box">
                   <a href="#search" className="search-button mx-3">
@@ -146,85 +147,54 @@ const Navbar = () => {
 // Helper function to render menu items
 const renderMenuItems = () => (
   <>
+    <li className="nav-item">
+  <a
+    className="nav-link active"
+    href="#"
+    onClick={(e) => {
+      e.preventDefault();
+      scrollToSection("newArrivals");
+    }}
+  >
+    NEW IN
+  </a>
+</li>
+
     <li className="nav-item dropdown">
-      <a
-        className="nav-link dropdown-toggle active"
-        href="#"
-        id="dropdownHome"
-        data-bs-toggle="dropdown"
-        aria-haspopup="true"
-        aria-expanded="false"
-      >
-        NEW IN
-      </a>
-      <ul
-        className="dropdown-menu list-unstyled"
-        aria-labelledby="dropdownHome"
-      >
-        <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            Men
-          </a>
-        </li>
-        <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            Women
-          </a>
-        </li>
-        <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            Sale
-          </a>
-        </li>
-      </ul>
+    <a
+  className="nav-link dropdown-toggle"
+  href="#"
+  role="button"
+  id="dropdownShop"
+  data-bs-toggle="dropdown"
+  aria-haspopup="true"
+  aria-expanded="false"
+>
+  MEN
+</a>
+
+  <ul className="dropdown-menu" aria-labelledby="dropdownShop">
+    <li>
+      <a href="#" onClick={(e) => {
+      e.preventDefault();
+      scrollToSection("tshirts");
+    }} className="dropdown-item">T-Shirts</a>
     </li>
-    <li className="nav-item dropdown">
-      <a
-        className="nav-link dropdown-toggle"
-        href="#"
-        id="dropdownShop"
-        data-bs-toggle="dropdown"
-        aria-haspopup="true"
-        aria-expanded="false"
-      >
-        MEN
-      </a>
-      <ul
-        className="dropdown-menu list-unstyled"
-        aria-labelledby="dropdownShop"
-      >
-        <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            Shop All
-          </a>
-        </li>
-        <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            T-Shirts
-          </a>
-        </li>
-        <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            Shirts
-          </a>
-        </li>
-        <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            Jackets
-          </a>
-        </li>
-        <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            Winter Wear
-          </a>
-        </li>
-        <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            Formal Wear
-          </a>
-        </li>
-      </ul>
+    <li>
+      <a href="#" onClick={(e) => {
+      e.preventDefault();
+      scrollToSection("shirts");
+    }} className="dropdown-item">Shirts</a>
     </li>
+    <li>
+      <a href="#" onClick={(e) => {
+      e.preventDefault();
+      scrollToSection("winter-comfort");
+    }} className="dropdown-item">Winter Wear</a>
+    </li>
+  </ul>
+</li>
+
     <li className="nav-item dropdown">
       <a
         className="nav-link dropdown-toggle"

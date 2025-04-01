@@ -3,7 +3,7 @@ import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import TryTheFit from "./TrytheFit";
 import supabase from "../supabaseClient";
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 import { openDrawer } from "../store/slice/uiSlice";
 import { updateImagesFromAPI } from "../store/slice/uiSlice";
 
@@ -19,17 +19,20 @@ const WinterComfort = () => {
 
   useEffect(() => {
     const getSessionAndUser = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-  
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
       if (error) {
         console.error("Failed to get session:", error.message);
         return;
       }
-  
+
       if (session?.user) {
         setUserId(session.user.id);
       }
-  
+
       // Listen for auth changes (like page refresh restoring session)
       const { data: listener } = supabase.auth.onAuthStateChange(
         async (event, session) => {
@@ -38,17 +41,14 @@ const WinterComfort = () => {
           }
         }
       );
-  
+
       return () => {
         listener?.subscription?.unsubscribe();
       };
     };
-  
+
     getSessionAndUser();
   }, []);
-  
-
-  console.log(userId, "userId");
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -132,6 +132,44 @@ const WinterComfort = () => {
     }
   };
 
+  const toggleCart = async (productId, index) => {
+    const updatedCart = !products[index].cart;
+
+    setProducts((prevProducts) => {
+      const newProducts = [...prevProducts];
+      newProducts[index].cart = updatedCart;
+      return newProducts;
+    });
+
+    localStorage.setItem(`cart_${productId}`, JSON.stringify(updatedCart));
+
+    // Call backend API to update cart (if necessary)
+    const mutation = `
+      mutation {
+        updateProduct(where: { id: "${productId}" }, data: { cart: ${updatedCart} }) {
+          id
+          cart
+        }
+        publishProduct(where: { id: "${productId}" }) {
+          id
+        }
+      }
+    `;
+
+    try {
+      await fetch(HYGRAPH_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${AUTH_TOKEN}`,
+        },
+        body: JSON.stringify({ query: mutation }),
+      });
+    } catch (error) {
+      console.error("Error updating cart:", error);
+    }
+  };
+
   const handleTryTheFitClick = async (garmentId, garmentUrl) => {
     if (!userId) {
       console.warn("User ID not available.");
@@ -173,14 +211,13 @@ const WinterComfort = () => {
       );
 
       if (!response.ok) {
-              throw new Error("Failed to send to inference");
-            }
-          
-            const data = await response.json();
-            console.log("Inference triggered successfully:", data);
-            dispatch(updateImagesFromAPI([data.presigned_url
-            ]));
-            console.log(images,"Images");
+        throw new Error("Failed to send to inference");
+      }
+
+      const data = await response.json();
+      console.log("Inference triggered successfully:", data);
+      dispatch(updateImagesFromAPI([data.presigned_url]));
+      console.log(images, "Images");
     } catch (error) {
       console.error("Error sending to inference:", error);
     }
@@ -228,7 +265,15 @@ const WinterComfort = () => {
                   handleTryTheFitClick(product.id, product.images?.[2]?.url);
                 }}
               />
-              <button className="add-to-cart">Add to Cart</button>
+              <button
+                className="add-to-cart"
+                onClick={(e) => {
+                  e.stopPropagation(); // prevents navigation
+                  toggleCart(product.id, index);
+                }}
+              >
+                {product.cart ? "Remove from Cart" : "Add to Cart"}
+              </button>
             </div>
           </div>
         ))}

@@ -1,17 +1,54 @@
 import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Navigation } from "swiper/modules";
+import { Navigation } from "swiper/modules";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import "swiper/css";
 import "swiper/css/navigation";
 import { useNavigate } from "react-router-dom";
+import TryTheFit from "./TrytheFit"; // Import the TryTheFit component
+import supabase from "../supabaseClient";
+import { useDispatch } from 'react-redux';
+import { openDrawer } from "../store/slice/uiSlice";
+import { updateImagesFromAPI } from "../store/slice/uiSlice";
 
 const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
 const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
+const BACKEND_URL = process.env.REACT_APP_API_BASE_URL;
 
 const NewArrivals = () => {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [userId, setUserId] = useState(null);
+
+  useEffect(() => {
+    const getSessionAndUser = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.error("Failed to get session:", error.message);
+        return;
+      }
+
+      if (session?.user) {
+        setUserId(session.user.id);
+      }
+
+      const { data: listener } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (session?.user) {
+            setUserId(session.user.id);
+          }
+        }
+      );
+
+      return () => {
+        listener?.subscription?.unsubscribe();
+      };
+    };
+
+    getSessionAndUser();
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -87,6 +124,87 @@ const NewArrivals = () => {
     }
   };
 
+  const toggleCart = async (productId, index) => {
+    const updatedCart = !products[index].cart;
+
+    setProducts((prevProducts) => {
+      const newProducts = [...prevProducts];
+      newProducts[index].cart = updatedCart;
+      return newProducts;
+    });
+
+    localStorage.setItem(`cart_${productId}`, JSON.stringify(updatedCart));
+
+    // Call backend API to update cart (if necessary)
+    const mutation = `
+      mutation {
+        updateProduct(where: { id: "${productId}" }, data: { cart: ${updatedCart} }) {
+          id
+          cart
+        }
+        publishProduct(where: { id: "${productId}" }) {
+          id
+        }
+      }
+    `;
+
+    try {
+      await fetch(HYGRAPH_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${AUTH_TOKEN}`,
+        },
+        body: JSON.stringify({ query: mutation }),
+      });
+    } catch (error) {
+      console.error("Error updating cart:", error);
+    }
+  };
+
+  const handleTryTheFitClick = async (garmentId, garmentUrl) => {
+    if (!userId) {
+      console.warn("User ID not available.");
+      dispatch(openDrawer());
+      return;
+    }
+
+    const existingUrls = JSON.parse(localStorage.getItem("selected_garment_url")) || [];
+
+    if (!existingUrls.includes(garmentUrl)) {
+      existingUrls.push(garmentUrl);
+      localStorage.setItem("selected_garment_url", JSON.stringify(existingUrls));
+    }
+
+    window.dispatchEvent(new Event("garmentUrlUpdated"));
+
+    const payload = {
+      user_id: userId,
+      garment_id: garmentId,
+    };
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/send-to-inference`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to send to inference");
+      }
+
+      const data = await response.json();
+      console.log("Inference triggered successfully:", data);
+      dispatch(updateImagesFromAPI([data.presigned_url]));
+    } catch (error) {
+      console.error("Error sending to inference:", error);
+    }
+  };
+
   return (
     <section id="new-arrival" className="new-arrival product-carousel py-5 position-relative">
       <div className="container">
@@ -133,6 +251,20 @@ const NewArrivals = () => {
                 </div>
                 <h5>{product.name}</h5>
                 <span>₹{product.price}</span>
+                <div className="button-column">
+                  <TryTheFit
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent the navigation
+                      handleTryTheFitClick(product.id, product.images?.[2]?.url);
+                    }}
+                  />
+                  <button className="add-to-cart" onClick={(e) => {
+                  e.stopPropagation(); // prevents navigation
+                  toggleCart(product.id, index);
+                }}>
+                  {product.cart ? "Remove from Cart" : "Add to Cart"}
+                  </button>
+                </div>
               </div>
             </SwiperSlide>
           ))}
@@ -184,17 +316,13 @@ const NewArrivals = () => {
           color: red;
         }
 
-        @media (max-width: 767px) {
-          .heart-button {
-            font-size: 20px;
-            padding: 6px;
-          }
-          
-          .product-item h5 {
-            font-size: 1rem;
-            margin-top: 0.5rem;
-          }
+        .button-column {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-top: 10px;
         }
+
       `}</style>
     </section>
   );

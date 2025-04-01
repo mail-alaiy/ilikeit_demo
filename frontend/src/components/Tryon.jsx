@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Spinner } from "react-bootstrap";
 import {
   IoCloseOutline,
   IoHeartOutline,
@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 const ImageSliderModal = ({ show = true, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userId, setUserId] = useState(null);
+  const [loading, setLoading] = useState(true); // Add loading state
   const images = useSelector((state) => state.ui.images);
   const navigate = useNavigate();
 
@@ -28,6 +29,12 @@ const ImageSliderModal = ({ show = true, onClose }) => {
 
       if (error) {
         console.error("Failed to get user:", error.message);
+        onClose();
+        return;
+      }
+
+      if (!user) {
+        onClose();
         return;
       }
 
@@ -35,7 +42,7 @@ const ImageSliderModal = ({ show = true, onClose }) => {
     };
 
     getUser();
-  }, []);
+  }, [onClose]);
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -43,6 +50,11 @@ const ImageSliderModal = ({ show = true, onClose }) => {
 
   const handlePrev = () => {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  // Handle image load event
+  const handleImageLoad = () => {
+    setLoading(false); // Set loading to false when image is loaded
   };
 
   return (
@@ -75,10 +87,14 @@ const ImageSliderModal = ({ show = true, onClose }) => {
         </div>
 
         {/* Image */}
-        {images.length > 0 ? (
+        {loading ? (
+          // Show spinner while loading
+          <Spinner animation="border" variant="primary" />
+        ) : images.length > 0 ? (
           <img
             src={images[currentIndex]}
             alt={`Image ${currentIndex + 1}`}
+            onLoad={handleImageLoad} // Trigger on image load
             style={{
               maxHeight: "70vh",
               maxWidth: "100%",
@@ -89,7 +105,7 @@ const ImageSliderModal = ({ show = true, onClose }) => {
             }}
           />
         ) : (
-          <div className="my-5 text-muted">Loading images...</div>
+          <div className="my-5 text-muted">Start trying on images</div>
         )}
 
         {/* Right Arrow */}
@@ -114,7 +130,10 @@ const ImageSliderModal = ({ show = true, onClose }) => {
           <IconButton
             icon={<IoGridOutline />}
             color="#6c757d"
-            onClick={() => { onClose() ; navigate("/fits")}}
+            onClick={() => {
+              onClose();
+              navigate("/fits");
+            }}
           />
         </div>
       </Modal.Body>

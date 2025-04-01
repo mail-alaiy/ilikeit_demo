@@ -9,29 +9,27 @@ import { updateImagesFromAPI } from "../store/slice/uiSlice";
 
 const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
 const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
-const BACKEND_URL = process.env.REACT_APP_API_BASE_URL
+const BACKEND_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Shirts = () => {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
   const [userId, setUserId] = useState(null);
   const dispatch = useDispatch();
-  const images = useSelector((state) => state.ui.images);
 
   useEffect(() => {
     const getSessionAndUser = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
-  
+
       if (error) {
         console.error("Failed to get session:", error.message);
         return;
       }
-  
+
       if (session?.user) {
         setUserId(session.user.id);
       }
-  
-      // Listen for auth changes (like page refresh restoring session)
+
       const { data: listener } = supabase.auth.onAuthStateChange(
         async (event, session) => {
           if (session?.user) {
@@ -39,17 +37,14 @@ const Shirts = () => {
           }
         }
       );
-  
+
       return () => {
         listener?.subscription?.unsubscribe();
       };
     };
-  
+
     getSessionAndUser();
   }, []);
-  
-
-  console.log(userId, "userId");
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -64,6 +59,7 @@ const Shirts = () => {
               url
             }
             wishlist
+            cart
           }
         }
       `;
@@ -79,13 +75,12 @@ const Shirts = () => {
 
       const { data } = await response.json();
 
-      // Sync wishlist state with localStorage
       const updatedProducts = data.products.map((product) => ({
         ...product,
         wishlist:
-          JSON.parse(localStorage.getItem(`wishlist_${product.id}`)) ??
-          product.wishlist ??
-          false,
+          JSON.parse(localStorage.getItem(`wishlist_${product.id}`)) ?? product.wishlist ?? false,
+        cart:
+          JSON.parse(localStorage.getItem(`cart_${product.id}`)) ?? product.cart ?? false,
       }));
 
       setProducts(updatedProducts);
@@ -94,6 +89,7 @@ const Shirts = () => {
     fetchProducts();
   }, []);
 
+  // Toggle Wishlist (already implemented in your code)
   const toggleWishlist = async (productId, index) => {
     const updatedWishlist = !products[index].wishlist;
 
@@ -103,12 +99,8 @@ const Shirts = () => {
       return newProducts;
     });
 
-    localStorage.setItem(
-      `wishlist_${productId}`,
-      JSON.stringify(updatedWishlist)
-    );
+    localStorage.setItem(`wishlist_${productId}`, JSON.stringify(updatedWishlist));
 
-    // Update backend
     const mutation = `
       mutation {
         updateProduct(where: { id: "${productId}" }, data: { wishlist: ${updatedWishlist} }) {
@@ -135,27 +127,59 @@ const Shirts = () => {
     }
   };
 
+  // Toggle Cart
+  const toggleCart = async (productId, index) => {
+    const updatedCart = !products[index].cart;
+
+    setProducts((prevProducts) => {
+      const newProducts = [...prevProducts];
+      newProducts[index].cart = updatedCart;
+      return newProducts;
+    });
+
+    localStorage.setItem(`cart_${productId}`, JSON.stringify(updatedCart));
+
+    // Call backend API to update cart (if necessary)
+    const mutation = `
+      mutation {
+        updateProduct(where: { id: "${productId}" }, data: { cart: ${updatedCart} }) {
+          id
+          cart
+        }
+        publishProduct(where: { id: "${productId}" }) {
+          id
+        }
+      }
+    `;
+
+    try {
+      await fetch(HYGRAPH_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${AUTH_TOKEN}`,
+        },
+        body: JSON.stringify({ query: mutation }),
+      });
+    } catch (error) {
+      console.error("Error updating cart:", error);
+    }
+  };
+
   const handleTryTheFitClick = async (garmentId, garmentUrl) => {
-    console.log(userId);
     if (!userId) {
       console.warn("User ID not available.");
       dispatch(openDrawer());
       return;
     }
 
-    const existingUrls =
-      JSON.parse(localStorage.getItem("selected_garment_url")) || [];
+    const existingUrls = JSON.parse(localStorage.getItem("selected_garment_url")) || [];
 
-    // Add new URL if not already present
     if (!existingUrls.includes(garmentUrl)) {
       existingUrls.push(garmentUrl);
-      localStorage.setItem(
-        "selected_garment_url",
-        JSON.stringify(existingUrls)
-      );
+      localStorage.setItem("selected_garment_url", JSON.stringify(existingUrls));
     }
 
-    // Dispatch custom event
     window.dispatchEvent(new Event("garmentUrlUpdated"));
 
     const payload = {
@@ -164,27 +188,21 @@ const Shirts = () => {
     };
 
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/send-to-inference`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`${BACKEND_URL}/send-to-inference`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) {
-              throw new Error("Failed to send to inference");
-            }
-          
-            const data = await response.json();
-            console.log("Inference triggered successfully:", data);
-            dispatch(updateImagesFromAPI([data.presigned_url
-            ]));
-            console.log(images,"Images");
+        throw new Error("Failed to send to inference");
+      }
+
+      const data = await response.json();
+      dispatch(updateImagesFromAPI([data.presigned_url]));
     } catch (error) {
       console.error("Error sending to inference:", error);
     }
@@ -198,17 +216,10 @@ const Shirts = () => {
           <div
             className="product-item"
             key={product.id}
-            onClick={() =>
-              navigate(`/product/${encodeURIComponent(product.name)}`, {
-                state: { product },
-              })
-            }
+            onClick={() => navigate(`/product/${encodeURIComponent(product.name)}`, { state: { product } })}
           >
             <div className="image-container">
-              <img
-                src={product.images?.[0]?.url || "fallback-image.jpg"}
-                alt={product.name}
-              />
+              <img src={product.images?.[0]?.url || "fallback-image.jpg"} alt={product.name} />
               <button
                 className="heart-button"
                 onClick={(e) => {
@@ -216,11 +227,7 @@ const Shirts = () => {
                   toggleWishlist(product.id, index);
                 }}
               >
-                {product.wishlist ? (
-                  <FaHeart className="filled-heart" />
-                ) : (
-                  <FaRegHeart className="outlined-heart" />
-                )}
+                {product.wishlist ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
               </button>
             </div>
             <h3>{product.name}</h3>
@@ -228,11 +235,19 @@ const Shirts = () => {
             <div className="button-column">
               <TryTheFit
                 onClick={(e) => {
-                  e.stopPropagation(); // prevents navigation
+                  e.stopPropagation();
                   handleTryTheFitClick(product.id, product.images?.[2]?.url);
                 }}
               />
-              <button className="add-to-cart">Add to Cart</button>
+              <button
+                className="add-to-cart"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleCart(product.id, index);
+                }}
+              >
+                {product.cart ? "Remove from Cart" : "Add to Cart"}
+              </button>
             </div>
           </div>
         ))}
@@ -257,11 +272,11 @@ const Shirts = () => {
         }
 
         .button-column {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 10px;
-}
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-top: 10px;
+        }
 
         .image-container img {
           width: 100%;
