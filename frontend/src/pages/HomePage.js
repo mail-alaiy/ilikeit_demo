@@ -24,7 +24,9 @@ const HomePage = () => {
         <Tshirts />
       </section>
       <Compliments />
-      <NewArrivals />
+      <section id="newArrivals">
+        <NewArrivals/>
+      </section>
       <Newsletter />
       <Footer />
     </>

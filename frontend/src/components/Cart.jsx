@@ -5,13 +5,13 @@ import { useNavigate } from "react-router-dom";
 const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
 const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 
-const Wishlist = () => {
-  const [wishlist, setWishlist] = useState([]);
+const Cart = () => {
+  const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchWishlist = async () => {
+    const fetchCart = async () => {
       setLoading(true);
       try {
         const response = await fetch(HYGRAPH_API, {
@@ -22,7 +22,7 @@ const Wishlist = () => {
           },
           body: JSON.stringify({
             query: `{
-              products(where: {wishlist: true}) {
+              products(where: {cart: true}) {
                 id
                 name
                 price
@@ -36,24 +36,24 @@ const Wishlist = () => {
         });
         const data = await response.json();
         if (data.data && data.data.products) {
-          setWishlist(data.data.products);
+          setCart(data.data.products);
         } else {
           console.error("Invalid data structure from Hygraph:", data);
-          setWishlist([]);
+          setCart([]);
         }
       } catch (error) {
         console.error("Error fetching wishlist:", error);
-        setWishlist([]);
+        setCart([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchWishlist();
+    fetchCart();
   }, []);
 
-  const toggleWishlist = (id) => {
-    setWishlist((prevWishlist) =>
-      prevWishlist.filter((product) => product.id !== id)
+  const toggleCart = (id) => {
+    setCart((prevCart) =>
+      prevCart.filter((product) => product.id !== id)
     );
   };
 
@@ -63,9 +63,9 @@ const Wishlist = () => {
       <div className="row mb-4">
         <div className="col-12">
           <div className="d-flex justify-content-between align-items-center">
-            <h1 className="display-5 fw-bold text-primary mb-0">My Wishlist</h1>
+            <h1 className="display-5 fw-bold text-primary mb-0">My Cart</h1>
             <div className="badge bg-light text-secondary px-3 py-2 rounded-pill">
-              {wishlist.length} {wishlist.length === 1 ? "item" : "items"}
+              {cart.length} {cart.length === 1 ? "item" : "items"}
             </div>
           </div>
           <hr className="mt-3 mb-4" />
@@ -77,17 +77,17 @@ const Wishlist = () => {
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>
-          <p className="mt-3 text-muted">Loading your wishlist...</p>
+          <p className="mt-3 text-muted">Loading your Cart...</p>
         </div>
-      ) : wishlist.length > 0 ? (
+      ) : cart.length > 0 ? (
         <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-          {wishlist.map((product) => (
+          {cart.map((product) => (
             <div key={product.id} className="col">
               <div className="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
                 <div className="position-absolute top-0 end-0 m-3 z-index-1">
                   <button
                     className="btn btn-light btn-sm rounded-circle shadow-sm p-2"
-                    onClick={() => toggleWishlist(product.id)}
+                    onClick={() => toggleCart(product.id)}
                     aria-label="Remove from wishlist"
                   >
                     <i className="bi bi-trash text-danger" />
@@ -115,9 +115,10 @@ const Wishlist = () => {
       ) : (
         <div className="text-center py-5 my-4 bg-light bg-opacity-50 rounded-3">
           <i className="bi bi-heart text-muted mb-3" style={{ fontSize: "3rem" }} />
-          <h4 className="text-muted mb-2">Your wishlist is empty</h4>
-          <p className="text-muted mb-4">Browse our catalog and save items you love</p>
-          <button className="btn btn-primary rounded-pill px-4 py-2" onClick={() => navigate('/')}>
+          <h4 className="text-muted mb-2">Your cart is empty</h4>
+          <p className="text-muted mb-4">Browse our catalog and add items you love</p>
+          <button className="btn btn-primary rounded-pill px-4 py-2"
+          onClick={() => navigate('/')}>
             Explore Products
           </button>
         </div>
@@ -126,4 +127,4 @@ const Wishlist = () => {
   );
 };
 
-export default Wishlist;
+export default Cart;

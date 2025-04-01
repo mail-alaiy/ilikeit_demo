@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TryTheFit = ({ onClick }) => {
+const TryTheFit = ({ onClick, className }) => {
   const buttonStyle = {
     position: 'relative',
     backgroundColor: 'grey',
@@ -16,16 +16,20 @@ const TryTheFit = ({ onClick }) => {
     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
     lineHeight: 1,
   };
-  
-    
-      const sparkleStyle = {
-        position: 'absolute',
-        top: '5px',
-        right: '5px',
-        fontSize: '1em',
-      };
+
+  const sparkleStyle = {
+    position: 'absolute',
+    top: '5px',
+    right: '5px',
+    fontSize: '1em',
+  };
+
   return (
-    <button style={buttonStyle} onClick={onClick}>
+    <button
+      style={buttonStyle}
+      onClick={onClick}
+      className={className}
+    >
       Try the Fit
       <span style={sparkleStyle}>✨</span>
     </button>

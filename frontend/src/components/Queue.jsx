@@ -1,10 +1,44 @@
 import React, { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import ImageSliderModal from "./Tryon";
+import { useDispatch } from 'react-redux';
+import { openDrawer } from "../store/slice/uiSlice";
+import supabase from "../supabaseClient";
 
 const QueueBar = () => {
   const [garmentUrls, setGarmentUrls] = useState([]);
-  const [showSlider, setShowSlider] = useState(false); // State to control the modal visibility
+  const [showSlider, setShowSlider] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const getSessionAndUser = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+  
+      if (error) {
+        console.error("Failed to get session:", error.message);
+        return;
+      }
+  
+      if (session?.user) {
+        setUserId(session.user.id);
+      }
+  
+      // Listen for auth changes (like page refresh restoring session)
+      const { data: listener } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (session?.user) {
+            setUserId(session.user.id);
+          }
+        }
+      );
+  
+      return () => {
+        listener?.subscription?.unsubscribe();
+      };
+    };
+  
+    getSessionAndUser();
+  }, []);
 
   const fetchUrls = () => {
     const urls = JSON.parse(localStorage.getItem("selected_garment_url")) || [];
@@ -30,6 +64,9 @@ const QueueBar = () => {
   const placeholders = Array(emptySlots).fill(null);
 
   const handleQueueItemClick = () => {
+    if (!userId) {
+      dispatch(openDrawer());
+    } 
     setShowSlider(true); // Open the modal on click
   };
 
@@ -93,7 +130,7 @@ const QueueBar = () => {
       {/* Modal component */}
       <ImageSliderModal
         show={showSlider}
-        onClose={() => setShowSlider(false)} // Close the modal when requested
+        onClose={() => { setShowSlider(false)}} // Close the modal when requested
       />
     </div>
   );

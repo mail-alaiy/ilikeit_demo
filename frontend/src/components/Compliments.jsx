@@ -27,7 +27,7 @@ const Compliments = () => {
       </div>
 
       {/* Swiper Container */}
-      <div className="swiper testimonial-swiper">
+      <div className="swiper testimonial-swiper d-flex justify-content-center align-items-center">
         <div className="swiper-wrapper">
           {[
             {
@@ -48,7 +48,16 @@ const Compliments = () => {
             },
           ].map((testimonial, index) => (
             <div key={index} className="swiper-slide">
-              <div className="card text-center shadow-lg border-0 mx-2" style={{ width: "22rem", padding: "20px", borderRadius: "15px" }}>
+              <div
+                className="card text-center shadow-lg border-0 mx-2"
+                style={{
+                  width: "100%",
+                  maxWidth: "22rem",
+                  padding: "20px",
+                  borderRadius: "15px",
+                  height: "auto", // ensure height adjusts
+                }}
+              >
                 <p className="fs-5 text-muted">“{testimonial.text}”</p>
                 <div className="fw-bold text-primary">— {testimonial.author}</div>
               </div>
@@ -56,6 +65,9 @@ const Compliments = () => {
           ))}
         </div>
       </div>
+
+      {/* Pagination (if needed) */}
+      <div className="testimonial-swiper-pagination d-flex justify-content-center mt-3"></div>
     </section>
   );
 };

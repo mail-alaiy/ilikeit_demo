@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Form, Button, Alert, Spinner } from "react-bootstrap";
 import { ArrowRight, X } from "react-bootstrap-icons";
-import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import supabase from "../supabaseClient";
 import { backdropStyle } from "./Helper";
@@ -76,17 +75,26 @@ const LoginSignupModal = ({ show = true}) => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin + "/add-name",
+          redirectTo: "",
         },
       });
-
+  
       if (error) throw error;
 
+      console.log(data);
+  
+      if (data?.user) {
+        console.log("Google login successful:", data.user);
+  
+        dispatch(nextStep());
+  
+      }
     } catch (err) {
       setError(err.message);
       setGoogleLoading(false);
     }
   };
+  
 
   return (
     <AnimatePresence>
