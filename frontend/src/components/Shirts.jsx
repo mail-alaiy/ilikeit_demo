@@ -7,8 +7,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { openDrawer } from "../store/slice/uiSlice";
 import { updateImagesFromAPI } from "../store/slice/uiSlice";
 
-const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
-const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 const BACKEND_URL = process.env.REACT_APP_API_BASE_URL;
 
 const Shirts = () => {
@@ -48,6 +46,9 @@ const Shirts = () => {
 
   useEffect(() => {
     const fetchProducts = async () => {
+      const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      
       const query = `
         {
           products(where: { category: "Shirt" }) {
@@ -58,17 +59,15 @@ const Shirts = () => {
             images {
               url
             }
-            wishlist
-            cart
           }
         }
       `;
 
-      const response = await fetch(HYGRAPH_API, {
+      const response = await fetch(process.env.REACT_APP_HYGRAPH_API, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${AUTH_TOKEN}`,
+          Authorization: `Bearer ${process.env.REACT_APP_AUTH_TOKEN}`,
         },
         body: JSON.stringify({ query }),
       });
@@ -77,10 +76,8 @@ const Shirts = () => {
 
       const updatedProducts = data.products.map((product) => ({
         ...product,
-        wishlist:
-          JSON.parse(localStorage.getItem(`wishlist_${product.id}`)) ?? product.wishlist ?? false,
-        cart:
-          JSON.parse(localStorage.getItem(`cart_${product.id}`)) ?? product.cart ?? false,
+        wishlist: wishlist.includes(product.id),
+        cart: cart.includes(product.id),
       }));
 
       setProducts(updatedProducts);
@@ -89,81 +86,33 @@ const Shirts = () => {
     fetchProducts();
   }, []);
 
-  // Toggle Wishlist (already implemented in your code)
-  const toggleWishlist = async (productId, index) => {
-    const updatedWishlist = !products[index].wishlist;
+  const toggleWishlist = (productId) => {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const updatedWishlist = wishlist.includes(productId)
+      ? wishlist.filter((id) => id !== productId)
+      : [...wishlist, productId];
 
-    setProducts((prevProducts) => {
-      const newProducts = [...prevProducts];
-      newProducts[index].wishlist = updatedWishlist;
-      return newProducts;
-    });
-
-    localStorage.setItem(`wishlist_${productId}`, JSON.stringify(updatedWishlist));
-
-    const mutation = `
-      mutation {
-        updateProduct(where: { id: "${productId}" }, data: { wishlist: ${updatedWishlist} }) {
-          id
-          wishlist
-        }
-        publishProduct(where: { id: "${productId}" }) {
-          id
-        }
-      }
-    `;
-
-    try {
-      await fetch(HYGRAPH_API, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${AUTH_TOKEN}`,
-        },
-        body: JSON.stringify({ query: mutation }),
-      });
-    } catch (error) {
-      console.error("Error updating wishlist:", error);
-    }
+    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === productId ? { ...product, wishlist: !product.wishlist } : product
+      )
+    );
   };
 
-  // Toggle Cart
-  const toggleCart = async (productId, index) => {
-    const updatedCart = !products[index].cart;
+  const toggleCart = (productId) => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const updatedCart = cart.includes(productId)
+      ? cart.filter((id) => id !== productId)
+      : [...cart, productId];
 
-    setProducts((prevProducts) => {
-      const newProducts = [...prevProducts];
-      newProducts[index].cart = updatedCart;
-      return newProducts;
-    });
-
-    localStorage.setItem(`cart_${productId}`, JSON.stringify(updatedCart));
-
-    // Call backend API to update cart (if necessary)
-    const mutation = `
-      mutation {
-        updateProduct(where: { id: "${productId}" }, data: { cart: ${updatedCart} }) {
-          id
-          cart
-        }
-        publishProduct(where: { id: "${productId}" }) {
-          id
-        }
-      }
-    `;
-
-    try {
-      await fetch(HYGRAPH_API, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${AUTH_TOKEN}`,
-        },
-        body: JSON.stringify({ query: mutation }),
-      });
-    } catch (error) {
-      console.error("Error updating cart:", error);
-    }
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.id === productId ? { ...product, cart: !product.cart } : product
+      )
+    );
+    
   };
 
   const handleTryTheFitClick = async (garmentId, garmentUrl) => {
@@ -212,7 +161,7 @@ const Shirts = () => {
     <section id="new-arrivals">
       <h4>Shirts</h4>
       <div className="product-grid">
-        {products.map((product, index) => (
+        {products.map((product) => (
           <div
             className="product-item"
             key={product.id}
@@ -224,7 +173,7 @@ const Shirts = () => {
                 className="heart-button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleWishlist(product.id, index);
+                  toggleWishlist(product.id);
                 }}
               >
                 {product.wishlist ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
@@ -234,16 +183,15 @@ const Shirts = () => {
             <p>₹{product.price.toFixed(2)}</p>
             <div className="button-column">
               <TryTheFit
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleTryTheFitClick(product.id, product.images?.[2]?.url);
-                }}
-              />
+              onClick={(e) => {
+                e.stopPropagation();
+                handleTryTheFitClick(product.id, product.images?.[2]?.url);
+              }} />
               <button
                 className="add-to-cart"
                 onClick={(e) => {
                   e.stopPropagation();
-                  toggleCart(product.id, index);
+                  toggleCart(product.id);
                 }}
               >
                 {product.cart ? "Remove from Cart" : "Add to Cart"}
@@ -252,9 +200,8 @@ const Shirts = () => {
           </div>
         ))}
       </div>
-
-      {/* Styles */}
-      <style>{`
+        {/* Styles */}
+        <style>{`
         .product-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

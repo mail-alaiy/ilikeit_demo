@@ -13,6 +13,13 @@ const Cart = () => {
   useEffect(() => {
     const fetchCart = async () => {
       setLoading(true);
+      const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+
+      if (storedCart.length === 0) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch(HYGRAPH_API, {
           method: "POST",
@@ -21,45 +28,49 @@ const Cart = () => {
             Authorization: `Bearer ${AUTH_TOKEN}`,
           },
           body: JSON.stringify({
-            query: `{
-              products(where: {cart: true}) {
-                id
-                name
-                price
-                category
-                images {
-                  url
+            query: `
+              query GetProducts($ids: [ID!]) {
+                products(where: { id_in: $ids }) {
+                  id
+                  name
+                  price
+                  category
+                  images {
+                    url
+                  }
                 }
               }
-            }`,
+            `,
+            variables: { ids: storedCart },
           }),
         });
-        const data = await response.json();
-        if (data.data && data.data.products) {
-          setCart(data.data.products);
+
+        const { data } = await response.json();
+        if (data && data.products) {
+          setCart(data.products);
         } else {
           console.error("Invalid data structure from Hygraph:", data);
           setCart([]);
         }
       } catch (error) {
-        console.error("Error fetching wishlist:", error);
+        console.error("Error fetching cart items:", error);
         setCart([]);
       } finally {
         setLoading(false);
       }
     };
+
     fetchCart();
   }, []);
 
   const toggleCart = (id) => {
-    setCart((prevCart) =>
-      prevCart.filter((product) => product.id !== id)
-    );
+    const updatedCart = cart.filter((product) => product.id !== id);
+    setCart(updatedCart);
+    localStorage.setItem("cart", JSON.stringify(updatedCart.map((p) => p.id))); // Store only IDs
   };
 
   return (
     <div className="container py-5">
-        
       <div className="row mb-4">
         <div className="col-12">
           <div className="d-flex justify-content-between align-items-center">
@@ -88,7 +99,7 @@ const Cart = () => {
                   <button
                     className="btn btn-light btn-sm rounded-circle shadow-sm p-2"
                     onClick={() => toggleCart(product.id)}
-                    aria-label="Remove from wishlist"
+                    aria-label="Remove from cart"
                   >
                     <i className="bi bi-trash text-danger" />
                   </button>
