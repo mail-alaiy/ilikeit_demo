@@ -3,7 +3,7 @@ import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import TryTheFit from "./TrytheFit";
 import supabase from "../supabaseClient";
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 import { openDrawer } from "../store/slice/uiSlice";
 import { updateImagesFromAPI } from "../store/slice/uiSlice";
 
@@ -17,7 +17,10 @@ const Shirts = () => {
 
   useEffect(() => {
     const getSessionAndUser = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
 
       if (error) {
         console.error("Failed to get session:", error.message);
@@ -48,7 +51,9 @@ const Shirts = () => {
     const fetchProducts = async () => {
       const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      
+      const selectedGarments =
+        JSON.parse(localStorage.getItem("selected_garment_url")) || [];
+
       const query = `
         {
           products(where: { category: "Shirt" }) {
@@ -78,6 +83,7 @@ const Shirts = () => {
         ...product,
         wishlist: wishlist.includes(product.id),
         cart: cart.includes(product.id),
+        addedToQueue: selectedGarments.includes(product.images?.[2]?.url),
       }));
 
       setProducts(updatedProducts);
@@ -95,7 +101,9 @@ const Shirts = () => {
     localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
     setProducts((prevProducts) =>
       prevProducts.map((product) =>
-        product.id === productId ? { ...product, wishlist: !product.wishlist } : product
+        product.id === productId
+          ? { ...product, wishlist: !product.wishlist }
+          : product
       )
     );
   };
@@ -112,7 +120,6 @@ const Shirts = () => {
         product.id === productId ? { ...product, cart: !product.cart } : product
       )
     );
-    
   };
 
   const handleTryTheFitClick = async (garmentId, garmentUrl) => {
@@ -122,14 +129,25 @@ const Shirts = () => {
       return;
     }
 
-    const existingUrls = JSON.parse(localStorage.getItem("selected_garment_url")) || [];
+    const existingUrls =
+      JSON.parse(localStorage.getItem("selected_garment_url")) || [];
 
     if (!existingUrls.includes(garmentUrl)) {
       existingUrls.push(garmentUrl);
-      localStorage.setItem("selected_garment_url", JSON.stringify(existingUrls));
+      localStorage.setItem(
+        "selected_garment_url",
+        JSON.stringify(existingUrls)
+      );
     }
 
     window.dispatchEvent(new Event("garmentUrlUpdated"));
+    setProducts((prevProducts) => {
+      const updatedProducts = prevProducts.map((product) =>
+        product.id === garmentId ? { ...product, addedToQueue: true } : product
+      );
+      console.log("Updated products:", updatedProducts); // Debugging log
+      return updatedProducts;
+    });
 
     const payload = {
       user_id: userId,
@@ -165,10 +183,17 @@ const Shirts = () => {
           <div
             className="product-item"
             key={product.id}
-            onClick={() => navigate(`/product/${encodeURIComponent(product.name)}`, { state: { product } })}
+            onClick={() =>
+              navigate(`/product/${encodeURIComponent(product.name)}`, {
+                state: { product },
+              })
+            }
           >
             <div className="image-container">
-              <img src={product.images?.[0]?.url || "fallback-image.jpg"} alt={product.name} />
+              <img
+                src={product.images?.[0]?.url || "fallback-image.jpg"}
+                alt={product.name}
+              />
               <button
                 className="heart-button"
                 onClick={(e) => {
@@ -176,17 +201,23 @@ const Shirts = () => {
                   toggleWishlist(product.id);
                 }}
               >
-                {product.wishlist ? <FaHeart className="filled-heart" /> : <FaRegHeart className="outlined-heart" />}
+                {product.wishlist ? (
+                  <FaHeart className="filled-heart" />
+                ) : (
+                  <FaRegHeart className="outlined-heart" />
+                )}
               </button>
             </div>
             <h3>{product.name}</h3>
             <p>₹{product.price.toFixed(2)}</p>
             <div className="button-column">
               <TryTheFit
-              onClick={(e) => {
-                e.stopPropagation();
-                handleTryTheFitClick(product.id, product.images?.[2]?.url);
-              }} />
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleTryTheFitClick(product.id, product.images?.[2]?.url);
+                }}
+                isAddedToQueue={product.addedToQueue}
+              />
               <button
                 className="add-to-cart"
                 onClick={(e) => {
@@ -200,8 +231,8 @@ const Shirts = () => {
           </div>
         ))}
       </div>
-        {/* Styles */}
-        <style>{`
+      {/* Styles */}
+      <style>{`
         .product-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

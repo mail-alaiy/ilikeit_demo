@@ -85,10 +85,10 @@ const Navbar = () => {
                   </Link>
                 </li>
                 <li>
-                <Link
-  to="/cart" // The route you want to navigate to
-  className="text-uppercase mx-3"
->
+                  <Link
+                    to="/cart" // The route you want to navigate to
+                    className="text-uppercase mx-3"
+                  >
                     Cart
                   </Link>
                 </li>
@@ -148,89 +148,82 @@ const Navbar = () => {
 const renderMenuItems = () => (
   <>
     <li className="nav-item">
-  <a
-    className="nav-link active"
-    href="#"
-    onClick={(e) => {
-      e.preventDefault();
-      scrollToSection("newArrivals");
-    }}
-  >
-    NEW IN
-  </a>
-</li>
-
-    <li className="nav-item dropdown">
-    <a
-  className="nav-link dropdown-toggle"
-  href="#"
-  role="button"
-  id="dropdownShop"
-  data-bs-toggle="dropdown"
-  aria-haspopup="true"
-  aria-expanded="false"
->
-  MEN
-</a>
-
-  <ul className="dropdown-menu" aria-labelledby="dropdownShop">
-    <li>
-      <a href="#" onClick={(e) => {
-      e.preventDefault();
-      scrollToSection("tshirts");
-    }} className="dropdown-item">T-Shirts</a>
+      <a
+        className="nav-link active"
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          scrollToSection("newArrivals");
+        }}
+      >
+        NEW IN
+      </a>
     </li>
-    <li>
-      <a href="#" onClick={(e) => {
-      e.preventDefault();
-      scrollToSection("shirts");
-    }} className="dropdown-item">Shirts</a>
-    </li>
-    <li>
-      <a href="#" onClick={(e) => {
-      e.preventDefault();
-      scrollToSection("winter-comfort");
-    }} className="dropdown-item">Winter Wear</a>
-    </li>
-  </ul>
-</li>
 
     <li className="nav-item dropdown">
       <a
         className="nav-link dropdown-toggle"
         href="#"
-        id="dropdownPages"
+        role="button"
+        id="dropdownShop"
         data-bs-toggle="dropdown"
         aria-haspopup="true"
         aria-expanded="false"
       >
-        LINKS
+        MEN
       </a>
-      <ul
-        className="dropdown-menu list-unstyled"
-        aria-labelledby="dropdownPages"
-      >
+
+      <ul className="dropdown-menu" aria-labelledby="dropdownShop">
         <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            About
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollToSection("tshirts");
+            }}
+            className="dropdown-item"
+          >
+            T-Shirts
           </a>
         </li>
         <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            Checkout
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollToSection("shirts");
+            }}
+            className="dropdown-item"
+          >
+            Shirts
           </a>
         </li>
         <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            Contact
-          </a>
-        </li>
-        <li>
-          <a href="index.html" className="dropdown-item item-anchor">
-            FAQs
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollToSection("winter-comfort");
+            }}
+            className="dropdown-item"
+          >
+            Winter Wear
           </a>
         </li>
       </ul>
+    </li>
+
+    <li className="nav-item">
+      <a
+        className="nav-link active"
+        href="#"
+        onClick={(e) => {
+          e.preventDefault();
+          scrollToSection("footer");
+        }}
+      >
+        LINKS
+      </a>
     </li>
   </>
 );
