@@ -10,9 +10,16 @@ const Wishlist = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchWishlist = async () => {
       setLoading(true);
+      const storedWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+
+      if (storedWishlist.length === 0) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch(HYGRAPH_API, {
           method: "POST",
@@ -21,40 +28,46 @@ const Wishlist = () => {
             Authorization: `Bearer ${AUTH_TOKEN}`,
           },
           body: JSON.stringify({
-            query: `{
-              products(where: {wishlist: true}) {
-                id
-                name
-                price
-                category
-                images {
-                  url
+            query: `
+              query GetProducts($ids: [ID!]) {
+                products(where: { id_in: $ids }) {
+                  id
+                  name
+                  price
+                  category
+                  images {
+                    url
+                  }
                 }
               }
-            }`,
+            `,
+            variables: { ids: storedWishlist },
           }),
         });
-        const data = await response.json();
-        if (data.data && data.data.products) {
-          setWishlist(data.data.products);
+
+        const { data } = await response.json();
+        if (data && data.products) {
+          setWishlist(data.products);
         } else {
           console.error("Invalid data structure from Hygraph:", data);
           setWishlist([]);
         }
       } catch (error) {
-        console.error("Error fetching wishlist:", error);
+        console.error("Error fetching wishlist items:", error);
         setWishlist([]);
       } finally {
         setLoading(false);
       }
     };
+
     fetchWishlist();
   }, []);
 
+  
   const toggleWishlist = (id) => {
-    setWishlist((prevWishlist) =>
-      prevWishlist.filter((product) => product.id !== id)
-    );
+    const updatedWishlist = wishlist.filter((product) => product.id !== id);
+    setWishlist(updatedWishlist);
+    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist.map((p) => p.id))); // Store only IDs
   };
 
   return (
