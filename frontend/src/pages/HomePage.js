@@ -27,7 +27,9 @@ const HomePage = () => {
       <section id="newArrivals">
         <NewArrivals/>
       </section>
+      <section id="footer">
       <Newsletter />
+      </section>
       <Footer />
     </>
   );

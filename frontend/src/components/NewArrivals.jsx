@@ -52,6 +52,7 @@ const NewArrivals = () => {
     const fetchProducts = async () => {
       const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const selectedGarments = JSON.parse(localStorage.getItem("selected_garment_url")) || [];
       
       const query = `
         {
@@ -82,6 +83,7 @@ const NewArrivals = () => {
         ...product,
         wishlist: wishlist.includes(product.id),
         cart: cart.includes(product.id),
+        addedToQueue: selectedGarments.includes(product.images?.[2]?.url),
       }));
 
       setProducts(updatedProducts);
@@ -133,6 +135,13 @@ const NewArrivals = () => {
     }
 
     window.dispatchEvent(new Event("garmentUrlUpdated"));
+    setProducts((prevProducts) => {
+      const updatedProducts = prevProducts.map((product) =>
+        product.id === garmentId ? { ...product, addedToQueue: true } : product
+      );
+      console.log("Updated products:", updatedProducts); // Debugging log
+      return updatedProducts;
+    });
 
     const payload = {
       user_id: userId,
@@ -213,6 +222,7 @@ const NewArrivals = () => {
                       e.stopPropagation(); // Prevent the navigation
                       handleTryTheFitClick(product.id, product.images?.[2]?.url);
                     }}
+                    isAddedToQueue={product.addedToQueue}
                   />
                   <button className="add-to-cart" onClick={(e) => {
                   e.stopPropagation(); // prevents navigation

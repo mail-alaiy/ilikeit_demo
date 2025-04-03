@@ -1,14 +1,14 @@
 import React from 'react';
 
-const TryTheFit = ({ onClick, className }) => {
+const TryTheFit = ({ onClick, isAddedToQueue, className }) => {
   const buttonStyle = {
     position: 'relative',
-    backgroundColor: 'grey',
-    color: 'white',
+    backgroundColor: 'white',
+    color: '#1D3557',
     padding: '6px 10px',
-    border: 'none',
-    borderRadius: '4px',
-    fontSize: '0.8em',
+    border: '1px solid #1D3557',
+    borderRadius: '8px',
+    fontSize: '0.7em',
     cursor: 'pointer',
     display: 'inline-flex',
     alignItems: 'center',
@@ -30,7 +30,7 @@ const TryTheFit = ({ onClick, className }) => {
       onClick={onClick}
       className={className}
     >
-      Try the Fit
+      {isAddedToQueue ? "Added to Queue" : "Try The Fit"}
       <span style={sparkleStyle}>✨</span>
     </button>
   );
