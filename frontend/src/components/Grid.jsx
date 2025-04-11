@@ -20,7 +20,7 @@ const Wishlist = () => {
       </div>
 
       {images.length > 0 ? (
-        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        <div className="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
           {images.map((img, index) => (
             <div key={index} className="col">
               <div className="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
@@ -40,7 +40,7 @@ const Wishlist = () => {
         <div className="text-center py-5 my-4 bg-light bg-opacity-50 rounded-3">
           <i className="bi bi-heart text-muted mb-3" style={{ fontSize: "3rem" }} />
           <h4 className="text-muted mb-2">Your list is empty</h4>
-          <p className="text-muted mb-4">Browse our catalog and save items you love</p>
+          <p className="text-muted mb-4">Browse our catalog and try on items you love</p>
           <button className="btn btn-primary rounded-pill px-4 py-2">
             Explore Products
           </button>
