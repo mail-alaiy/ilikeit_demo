@@ -10,35 +10,6 @@ const scrollToSection = (id) => {
 const Navbar = () => {
   return (
     <>
-      {/* Cart Offcanvas */}
-      <div
-        className="offcanvas offcanvas-end"
-        data-bs-scroll="true"
-        tabIndex="-1"
-        id="offcanvasCart"
-        aria-labelledby="My Cart"
-      >
-        <div className="offcanvas-header justify-content-center">
-          <button
-            type="button"
-            className="btn-close"
-            data-bs-dismiss="offcanvas"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div className="offcanvas-body">
-          <div className="order-md-last">
-            <h4 className="d-flex justify-content-between align-items-center mb-3">
-              <span className="text-primary">Your cart</span>
-              <span className="badge bg-primary rounded-pill">0</span>
-            </h4>
-            <button className="w-100 btn btn-primary btn-lg" type="submit">
-              Add items to continue to checkout
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Banner */}
       <div className="top-header">
         <div className="banner-container">
@@ -70,15 +41,88 @@ const Navbar = () => {
             </div>
 
             {/* Desktop Menu */}
-            <div className="d-none d-lg-block">
+            <div className="d-none d-lg-flex align-items-center"> {/* Changed to d-lg-flex */}
               <ul className="navbar-nav flex-row gap-md-5">
-                {renderMenuItems()}
-              </ul>
-            </div>
+                <li className="nav-item">
+                  <a
+                    className="nav-link active"
+                    href="#newArrivals"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection("newArrivals");
+                    }}
+                  >
+                    NEW IN
+                  </a>
+                </li>
 
-            {/* Desktop Icons */}
-            <div className="d-none d-lg-block">
-              <ul className="list-unstyled d-flex m-0 align-items-center">
+                <li className="nav-item dropdown">
+                  <a
+                    className="nav-link dropdown-toggle"
+                    href="#"
+                    role="button"
+                    id="dropdownShop"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    MEN
+                  </a>
+
+                  <ul className="dropdown-menu" aria-labelledby="dropdownShop">
+                    <li>
+                      <a
+                        href="#tshirts"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          scrollToSection("tshirts");
+                        }}
+                        className="dropdown-item"
+                      >
+                        T-Shirts
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#shirts"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          scrollToSection("shirts");
+                        }}
+                        className="dropdown-item"
+                      >
+                        Shirts
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#winter-comfort"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          scrollToSection("winter-comfort");
+                        }}
+                        className="dropdown-item"
+                      >
+                        Winter Wear
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+
+                <li className="nav-item">
+                  <a
+                    className="nav-link active"
+                    href="#footer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToSection("footer");
+                    }}
+                  >
+                    LINKS
+                  </a>
+                </li>
+              </ul>
+              <ul className="list-unstyled d-flex m-0 align-items-center ms-4">
                 <li>
                   <Link to="/wishlist" className="text-uppercase mx-3">
                     Wishlist
@@ -86,7 +130,7 @@ const Navbar = () => {
                 </li>
                 <li>
                   <Link
-                    to="/cart" // The route you want to navigate to
+                    to="/cart"
                     className="text-uppercase mx-3"
                   >
                     Cart
@@ -120,6 +164,7 @@ const Navbar = () => {
               id="offcanvasNavbar"
               aria-labelledby="offcanvasNavbarLabel"
             >
+              {/* ... Mobile menu content remains the same ... */}
               <div className="offcanvas-header">
                 <h5 className="offcanvas-title" id="offcanvasNavbarLabel">
                   Menu
@@ -132,8 +177,100 @@ const Navbar = () => {
                 ></button>
               </div>
               <div className="offcanvas-body">
-                <ul className="navbar-nav justify-content-end flex-grow-1 gap-1 gap-md-5 pe-3">
-                  {renderMenuItems()}
+                <ul className="navbar-nav justify-content-end flex-grow-1 gap-1 gap-md-3 pe-3">
+                  <li className="nav-item">
+                    <a
+                      className="nav-link active"
+                      href="#newArrivals"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        scrollToSection("newArrivals");
+                      }}
+                    >
+                      NEW IN
+                    </a>
+                  </li>
+
+                  <li className="nav-item dropdown">
+                    <a
+                      className="nav-link dropdown-toggle"
+                      href="#"
+                      role="button"
+                      id="offcanvasDropdownShop"
+                      data-bs-toggle="dropdown"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                    >
+                      MEN
+                    </a>
+                    <ul
+                      className="dropdown-menu"
+                      aria-labelledby="offcanvasDropdownShop"
+                    >
+                      <li>
+                        <a
+                          href="#tshirts"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            scrollToSection("tshirts");
+                          }}
+                          className="dropdown-item"
+                        >
+                          T-Shirts
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#shirts"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            scrollToSection("shirts");
+                          }}
+                          className="dropdown-item"
+                        >
+                          Shirts
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="#winter-comfort"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            scrollToSection("winter-comfort");
+                          }}
+                          className="dropdown-item"
+                        >
+                          Winter Wear
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+
+                  <li className="nav-item">
+                    <a
+                      className="nav-link active"
+                      href="#footer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        scrollToSection("footer");
+                      }}
+                    >
+                      LINKS
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <Link to="/wishlist" className="nav-link">
+                      Wishlist
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link
+                      to="/cart"
+                      className="nav-link"
+                    >
+                      Cart
+                    </Link>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -143,89 +280,5 @@ const Navbar = () => {
     </>
   );
 };
-
-// Helper function to render menu items
-const renderMenuItems = () => (
-  <>
-    <li className="nav-item">
-      <a
-        className="nav-link active"
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          scrollToSection("newArrivals");
-        }}
-      >
-        NEW IN
-      </a>
-    </li>
-
-    <li className="nav-item dropdown">
-      <a
-        className="nav-link dropdown-toggle"
-        href="#"
-        role="button"
-        id="dropdownShop"
-        data-bs-toggle="dropdown"
-        aria-haspopup="true"
-        aria-expanded="false"
-      >
-        MEN
-      </a>
-
-      <ul className="dropdown-menu" aria-labelledby="dropdownShop">
-        <li>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("tshirts");
-            }}
-            className="dropdown-item"
-          >
-            T-Shirts
-          </a>
-        </li>
-        <li>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("shirts");
-            }}
-            className="dropdown-item"
-          >
-            Shirts
-          </a>
-        </li>
-        <li>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("winter-comfort");
-            }}
-            className="dropdown-item"
-          >
-            Winter Wear
-          </a>
-        </li>
-      </ul>
-    </li>
-
-    <li className="nav-item">
-      <a
-        className="nav-link active"
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          scrollToSection("footer");
-        }}
-      >
-        LINKS
-      </a>
-    </li>
-  </>
-);
 
 export default Navbar;
