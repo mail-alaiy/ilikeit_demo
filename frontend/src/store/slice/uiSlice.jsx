@@ -14,9 +14,11 @@ const uiSlice = createSlice({
   initialState,
   reducers: {
     setInitialImages: (state, action) => {
+      console.log("Setting initial images");
       state.images = action.payload;
     },
     updateImagesFromAPI: (state, action) => {
+      console.log("image update from API");
         state.images = [...state.images, ...action.payload];
     },
     openDrawer: (state) => {

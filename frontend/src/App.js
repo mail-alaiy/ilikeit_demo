@@ -80,14 +80,14 @@ const App = () => {
         const data = await response.json();
         console.log(data,"Data");
         const imageUrls = data.map((img) => img.inference_image_url).reverse();
+        console.log(imageUrls);
         dispatch(setInitialImages(imageUrls));
-        console.log(images);
       } catch (error) {
         console.error("Failed to fetch images:", error);
       }
     };
     fetchImages();
-  }, [userId, dispatch]);
+  }, [userId]);
 
   return (
     <Router>
