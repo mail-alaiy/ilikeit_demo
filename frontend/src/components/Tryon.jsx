@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Spinner } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import {
   IoCloseOutline,
   IoHeartOutline,
@@ -7,18 +7,21 @@ import {
   IoChevronBackOutline,
   IoChevronForwardOutline,
   IoShareOutline,
+  IoGridOutline,
 } from "react-icons/io5";
 import "bootstrap/dist/css/bootstrap.min.css";
 import supabase from "../supabaseClient";
 import { useSelector } from "react-redux";
-import { IoGridOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 
 const ImageSliderModal = ({ show = true, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userId, setUserId] = useState(null);
-  const [loading, setLoading] = useState(true); 
-  const images = useSelector((state) => state.ui.images);
+  const images = useSelector((state) => {
+    console.log("State inside useSelector:", state.ui.images);
+    return state.ui.images;
+  });
+  console.log(images, "Images");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,16 +56,17 @@ const ImageSliderModal = ({ show = true, onClose }) => {
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  const handleImageLoad = () => {
-    setLoading(false);
-  };
-
   const addToGeneratedWishlist = () => {
-    const generatedWishlist = JSON.parse(localStorage.getItem("generatedWishlist")) || [];
+    const generatedWishlist = JSON.parse(
+      localStorage.getItem("generatedWishlist")
+    ) || [];
     const imageUrl = images[currentIndex];
     if (!generatedWishlist.includes(imageUrl)) {
       generatedWishlist.push(imageUrl);
-      localStorage.setItem("generatedWishlist", JSON.stringify(generatedWishlist));
+      localStorage.setItem(
+        "generatedWishlist",
+        JSON.stringify(generatedWishlist)
+      );
     }
   };
 
@@ -78,10 +82,12 @@ const ImageSliderModal = ({ show = true, onClose }) => {
   const shareImage = () => {
     const imageUrl = images[currentIndex];
     if (navigator.share) {
-      navigator.share({
-        title: "Check out this image",
-        url: imageUrl,
-      }).catch((error) => console.error("Error sharing:", error));
+      navigator
+        .share({
+          title: "Check out this image",
+          url: imageUrl,
+        })
+        .catch((error) => console.error("Error sharing:", error));
     } else {
       navigator.clipboard.writeText(imageUrl).then(() => {
         alert("Image link copied to clipboard!");
@@ -126,20 +132,20 @@ const ImageSliderModal = ({ show = true, onClose }) => {
         </Button>
 
         {/* Left Arrow */}
-        <div className="position-absolute top-50 start-0 translate-middle-y" style={{ zIndex: 2 }}>
+        <div
+          className="position-absolute top-50 start-0 translate-middle-y"
+          style={{ zIndex: 2 }}
+        >
           <ArrowButton onClick={handlePrev}>
             <IoChevronBackOutline size={24} />
           </ArrowButton>
         </div>
 
         {/* Image */}
-        {loading ? (
-          <Spinner animation="border" variant="primary" />
-        ) : images.length > 0 ? (
+        {images.length > 0 ? (
           <img
             src={images[currentIndex]}
             alt={`Image ${currentIndex + 1}`}
-            onLoad={handleImageLoad}
             style={{
               maxHeight: "70vh",
               maxWidth: "100%",
@@ -154,7 +160,10 @@ const ImageSliderModal = ({ show = true, onClose }) => {
         )}
 
         {/* Right Arrow */}
-        <div className="position-absolute top-50 end-0 translate-middle-y" style={{ zIndex: 2 }}>
+        <div
+          className="position-absolute top-50 end-0 translate-middle-y"
+          style={{ zIndex: 2 }}
+        >
           <ArrowButton onClick={handleNext}>
             <IoChevronForwardOutline size={24} />
           </ArrowButton>
@@ -162,10 +171,29 @@ const ImageSliderModal = ({ show = true, onClose }) => {
 
         {/* Bottom Buttons */}
         <div className="d-flex justify-content-around gap-3 mt-4">
-          <IconButton icon={<IoHeartOutline />} color="#e91e63" onClick={addToGeneratedWishlist} />
-          <IconButton icon={<IoCartOutline />} color="#0d6efd" onClick={addToGeneratedCart} />
-          <IconButton icon={<IoShareOutline />} color="#ff9800" onClick={shareImage} />
-          <IconButton icon={<IoGridOutline />} color="#6c757d" onClick={() => { onClose(); navigate("/fits"); }} />
+          <IconButton
+            icon={<IoHeartOutline />}
+            color="#e91e63"
+            onClick={addToGeneratedWishlist}
+          />
+          <IconButton
+            icon={<IoCartOutline />}
+            color="#0d6efd"
+            onClick={addToGeneratedCart}
+          />
+          <IconButton
+            icon={<IoShareOutline />}
+            color="#ff9800"
+            onClick={shareImage}
+          />
+          <IconButton
+            icon={<IoGridOutline />}
+            color="#6c757d"
+            onClick={() => {
+              onClose();
+              navigate("/fits");
+            }}
+          />
         </div>
       </Modal.Body>
     </Modal>
@@ -193,7 +221,6 @@ const IconButton = ({ icon, color, onClick }) => (
   </Button>
 );
 
-// Arrow Button
 const ArrowButton = ({ onClick, children }) => (
   <Button
     variant="light"
