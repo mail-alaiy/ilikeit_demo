@@ -16,6 +16,7 @@ import ProductPage from "./pages/ProductPage";
 import WishlistPage from "./pages/WishlistPage";
 import FitsPage from "./pages/FitsPage";
 import CartPage from "./pages/CartPage";
+import Profile from "./components/Profile";
 
 const App = () => {
   const [userId, setUserId] = useState(null);
@@ -54,6 +55,7 @@ const App = () => {
 
     getSessionAndUser();
   }, []);
+  
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -76,6 +78,7 @@ const App = () => {
         }
 
         const data = await response.json();
+        console.log(data,"Data");
         const imageUrls = data.map((img) => img.inference_image_url).reverse();
         dispatch(setInitialImages(imageUrls));
         console.log(images);
@@ -127,6 +130,12 @@ const App = () => {
             <Layout>
               <FitsPage />
             </Layout>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+              <Profile />
           }
         />
       </Routes>

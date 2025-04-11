@@ -93,7 +93,7 @@ const Wishlist = () => {
           <p className="mt-3 text-muted">Loading your wishlist...</p>
         </div>
       ) : wishlist.length > 0 ? (
-        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        <div className="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
           {wishlist.map((product) => (
             <div key={product.id} className="col">
               <div className="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
