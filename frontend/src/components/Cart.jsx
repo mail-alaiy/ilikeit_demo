@@ -7,13 +7,20 @@ const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 
 const Cart = () => {
   const [cart, setCart] = useState([]);
+  const [generatedImages, setGeneratedImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const handleBack = () => {
+    navigate(-1); // Go back to the previous page
+  };
 
   useEffect(() => {
     const fetchCart = async () => {
       setLoading(true);
       const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+      const storedGenerated = JSON.parse(localStorage.getItem("generatedCart")) || [];
+
+      setGeneratedImages(storedGenerated);
 
       if (storedCart.length === 0) {
         setLoading(false);
@@ -71,12 +78,36 @@ const Cart = () => {
 
   return (
     <div className="container py-5">
+      {/* Back Button */}
+      <div className="mb-4">
+        <button 
+          onClick={handleBack} 
+          className="btn btn-link p-0 bg-transparent d-flex align-items-center"
+          style={{
+            fontSize: "1rem", 
+            color: "#6c757d",
+            transition: "transform 0.2s ease", 
+            paddingLeft: "0"
+          }}
+        >
+          <i 
+            className="bi bi-arrow-left-circle" 
+            style={{ fontSize: "1.5rem" }} 
+          />
+          <span 
+            className="ms-2" 
+            style={{ fontSize: "1rem", fontWeight: "500" }}
+          >
+            Back
+          </span>
+        </button>
+      </div>
       <div className="row mb-4">
         <div className="col-12">
           <div className="d-flex justify-content-between align-items-center">
             <h1 className="display-5 fw-bold text-primary mb-0">My Cart</h1>
             <div className="badge bg-light text-secondary px-3 py-2 rounded-pill">
-              {cart.length} {cart.length === 1 ? "item" : "items"}
+              {cart.length + generatedImages.length} {cart.length + generatedImages.length === 1 ? "item" : "items"}
             </div>
           </div>
           <hr className="mt-3 mb-4" />
@@ -90,8 +121,24 @@ const Cart = () => {
           </div>
           <p className="mt-3 text-muted">Loading your Cart...</p>
         </div>
-      ) : cart.length > 0 ? (
+      ) : cart.length > 0 || generatedImages.length > 0 ? (
         <div className="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+          {generatedImages.map((url, index) => (
+            <div key={`generated-${index}`} className="col">
+              <div className="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
+
+                <img
+                  src={url}
+                  alt={`Generated ${index}`}
+                  className="card-img-top img-fluid"
+                />
+
+                <div className="card-body p-4">
+                  <h5 className="card-title mb-2">Generated Image</h5>
+                </div>
+              </div>
+            </div>
+          ))}
           {cart.map((product) => (
             <div key={product.id} className="col">
               <div className="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">

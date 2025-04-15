@@ -14,6 +14,7 @@
     "aos": "^2.3.4",
     "axios": "^1.8.2",
     "bootstrap": "^5.3.3",
+    "exif-js": "^2.3.0",
     "framer-motion": "^12.5.0",
     "hc-sticky": "^2.2.7",
     "isotope-layout": "^3.0.6",

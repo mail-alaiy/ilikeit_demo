@@ -17,6 +17,7 @@ import preset1 from "../images/option1.jpeg";
 import preset2 from "../images/option2.jpg";
 import { useSelector, useDispatch } from "react-redux";
 import { closeDrawer, nextStep } from "../store/slice/uiSlice";
+import EXIF from "exif-js";
 
 const UploadPicturesScreen = ({ show = true }) => {
   const [image, setImage] = useState(null);
@@ -29,58 +30,97 @@ const UploadPicturesScreen = ({ show = true }) => {
   const handleDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
     const imageUrl = URL.createObjectURL(file);
-    setImage({ file, preview: imageUrl });
-    setRotation(0);
+    EXIF.getData(file, function () {
+      const orientation = EXIF.getTag(this, "Orientation");
+
+      let correctedRotation = 0;
+      switch (orientation) {
+        case 3:
+          correctedRotation = 180;
+          break;
+        case 6:
+          correctedRotation = 90;
+          break;
+        case 8:
+          correctedRotation = 270;
+          break;
+        default:
+          correctedRotation = 0;
+          break;
+      }
+      setImage({ file, preview: imageUrl });
+      setRotation(correctedRotation);
+    });
   };
 
   const handleUpload = async () => {
     if (!image || !image.file) return;
     setIsUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", image.file);
+    // Correct image rotation using canvas
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+    img.src = image.preview;
 
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
+    img.onload = async () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
 
-    if (error || !user) {
-      alert("Failed to fetch user.");
-      setIsUploading(false);
-      return;
-    }
+      // Apply the rotation to the canvas context
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate((rotation * Math.PI) / 180);
+      ctx.drawImage(img, -img.width / 2, -img.height / 2);
 
-    const userId = user.id;
+      // Convert the canvas back to a file
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], "rotated-image.jpg", { type: "image/jpeg" });
 
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/users/${userId}/upload-image`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
-          },
-          body: formData,
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
+
+        if (error || !user) {
+          alert("Failed to fetch user.");
+          setIsUploading(false);
+          return;
         }
-      );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Upload failed");
-      }
+        const userId = user.id;
 
-      const data = await response.json();
-      console.log("Upload successful:", data);
-      dispatch(nextStep());
-    } catch (error) {
-      console.error("Upload error:", error.message);
-      alert("Failed to upload image: " + error.message);
-    } finally {
-      setIsUploading(false);
-    }
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_API_BASE_URL}/users/${userId}/upload-image`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
+              },
+              body: formData,
+            }
+          );
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || "Upload failed");
+          }
+
+          const data = await response.json();
+          console.log("Upload successful:", data);
+          dispatch(nextStep());
+        } catch (error) {
+          console.error("Upload error:", error.message);
+          alert("Failed to upload image: " + error.message);
+        } finally {
+          setIsUploading(false);
+        }
+      }, "image/jpeg");
+    };
   };
-
   const removeImage = () => {
     if (image) URL.revokeObjectURL(image.preview);
     setImage(null);
