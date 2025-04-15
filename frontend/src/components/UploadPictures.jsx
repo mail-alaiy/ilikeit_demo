@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "react-bootstrap";
-import { ArrowRight, Plus, Trash, X } from "react-bootstrap-icons";
+import {
+  ArrowRight,
+  Plus,
+  Trash,
+  X,
+  ArrowClockwise,
+} from "react-bootstrap-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Dropzone from "react-dropzone";
 import { useNavigate } from "react-router-dom";
@@ -9,11 +15,12 @@ import supabase from "../supabaseClient";
 import { popupVariants, backdropStyle } from "./Helper";
 import preset1 from "../images/option1.jpeg";
 import preset2 from "../images/option2.jpg";
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 import { closeDrawer, nextStep } from "../store/slice/uiSlice";
 
-const UploadPicturesScreen = ({ show = true, onClose }) => {
+const UploadPicturesScreen = ({ show = true }) => {
   const [image, setImage] = useState(null);
+  const [rotation, setRotation] = useState(0);
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isUploading, setIsUploading] = useState(false);
@@ -23,6 +30,7 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
     const file = acceptedFiles[0];
     const imageUrl = URL.createObjectURL(file);
     setImage({ file, preview: imageUrl });
+    setRotation(0);
   };
 
   const handleUpload = async () => {
@@ -76,6 +84,11 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
   const removeImage = () => {
     if (image) URL.revokeObjectURL(image.preview);
     setImage(null);
+    setRotation(0);
+  };
+
+  const rotateImage = () => {
+    setRotation((prev) => (prev + 90) % 360);
   };
 
   useEffect(() => {
@@ -197,24 +210,51 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
                                 height: "100%",
                                 objectFit: "cover",
                                 borderRadius: "10px",
+                                transform: `rotate(${rotation}deg)`,
+                                transition: "transform 0.3s ease",
                               }}
                             />
                             <Button
-                              variant="dark"
+                              variant="light"
                               size="sm"
                               className="position-absolute d-flex align-items-center justify-content-center"
                               style={{
                                 top: "5px",
                                 right: "5px",
                                 borderRadius: "50%",
-                                padding: "3px",
+                                padding: "4px",
+                                backgroundColor: "#ffffff",
+                                boxShadow: "0px 0px 6px rgba(0,0,0,0.3)",
+                                border: "1px solid #ccc",
+                                zIndex: 10,
                               }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 removeImage();
                               }}
                             >
-                              <Trash size={12} />
+                              <Trash size={12} color="#000000" />
+                            </Button>
+
+                            <Button
+                              variant="light"
+                              size="sm"
+                              className="position-absolute"
+                              style={{
+                                bottom: "5px",
+                                right: "5px",
+                                borderRadius: "50%",
+                                padding: "4px",
+                                backgroundColor: "#ffffff",
+                                boxShadow: "0px 0px 6px rgba(0,0,0,0.3)",
+                                border: "1px solid #ccc",
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                rotateImage();
+                              }}
+                            >
+                              <ArrowClockwise size={12} color="#000000" />
                             </Button>
                           </>
                         ) : (
@@ -246,6 +286,7 @@ const UploadPicturesScreen = ({ show = true, onClose }) => {
                         });
                         const preview = URL.createObjectURL(file);
                         setImage({ file, preview });
+                        setRotation(0);
                       }}
                       style={{
                         width: "90px",
