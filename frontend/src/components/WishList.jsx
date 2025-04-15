@@ -134,10 +134,6 @@ const Wishlist = () => {
                   alt={`Generated ${index}`}
                   className="card-img-top img-fluid"
                 />
-
-                <div className="card-body p-4">
-                  <h5 className="card-title mb-2">Generated Image</h5>
-                </div>
               </div>
             </div>
           ))}

@@ -3,7 +3,9 @@ import { Modal, Button } from "react-bootstrap";
 import {
   IoCloseOutline,
   IoHeartOutline,
+  IoHeart,
   IoCartOutline,
+  IoCart,
   IoChevronBackOutline,
   IoChevronForwardOutline,
   IoShareOutline,
@@ -17,11 +19,13 @@ import { useNavigate } from "react-router-dom";
 const ImageSliderModal = ({ show = true, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userId, setUserId] = useState(null);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isCarted, setIsCarted] = useState(false);
+
   const images = useSelector((state) => {
-    console.log("State inside useSelector:", state.ui.images);
     return state.ui.images;
   });
-  console.log(images, "Images");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,6 +52,17 @@ const ImageSliderModal = ({ show = true, onClose }) => {
     getUser();
   }, [onClose]);
 
+  useEffect(() => {
+    const imageUrl = images[currentIndex];
+    const generatedWishlist =
+      JSON.parse(localStorage.getItem("generatedWishlist")) || [];
+    const generatedCart =
+      JSON.parse(localStorage.getItem("generatedCart")) || [];
+
+    setIsWishlisted(generatedWishlist.includes(imageUrl));
+    setIsCarted(generatedCart.includes(imageUrl));
+  }, [currentIndex, images]);
+
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % images.length);
   };
@@ -57,25 +72,29 @@ const ImageSliderModal = ({ show = true, onClose }) => {
   };
 
   const addToGeneratedWishlist = () => {
-    const generatedWishlist = JSON.parse(
-      localStorage.getItem("generatedWishlist")
-    ) || [];
     const imageUrl = images[currentIndex];
+    const generatedWishlist =
+      JSON.parse(localStorage.getItem("generatedWishlist")) || [];
+
     if (!generatedWishlist.includes(imageUrl)) {
       generatedWishlist.push(imageUrl);
       localStorage.setItem(
         "generatedWishlist",
         JSON.stringify(generatedWishlist)
       );
+      setIsWishlisted(true);
     }
   };
 
   const addToGeneratedCart = () => {
-    const generatedCart = JSON.parse(localStorage.getItem("generatedCart")) || [];
     const imageUrl = images[currentIndex];
+    const generatedCart =
+      JSON.parse(localStorage.getItem("generatedCart")) || [];
+
     if (!generatedCart.includes(imageUrl)) {
       generatedCart.push(imageUrl);
       localStorage.setItem("generatedCart", JSON.stringify(generatedCart));
+      setIsCarted(true);
     }
   };
 
@@ -114,7 +133,7 @@ const ImageSliderModal = ({ show = true, onClose }) => {
           boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
         }}
       >
-        {/* Close Button (Top Right) */}
+        {/* Close Button */}
         <Button
           variant="light"
           onClick={onClose}
@@ -169,16 +188,28 @@ const ImageSliderModal = ({ show = true, onClose }) => {
           </ArrowButton>
         </div>
 
-        {/* Bottom Buttons */}
+        {/* Bottom Icons */}
         <div className="d-flex justify-content-around gap-3 mt-4">
           <IconButton
-            icon={<IoHeartOutline />}
-            color="#e91e63"
+            icon={
+              isWishlisted ? (
+                <IoHeart style={{ fill: "#e91e63" }} />
+              ) : (
+                <IoHeartOutline />
+              )
+            }
+            color={isWishlisted ? "#e91e63" : "#000"}
             onClick={addToGeneratedWishlist}
           />
           <IconButton
-            icon={<IoCartOutline />}
-            color="#0d6efd"
+            icon={
+              isCarted ? (
+                <IoCart style={{ fill: "#0d6efd" }} />
+              ) : (
+                <IoCartOutline />
+              )
+            }
+            color={isCarted ? "#0d6efd" : "#000"}
             onClick={addToGeneratedCart}
           />
           <IconButton
