@@ -290,7 +290,12 @@ const Navbar = () => {
                     </Link>
                   </li>
                     {user && (
-                      <li className="nav-item">
+                      <li onClick={handleLogout} style={{
+                        cursor: "pointer",
+                        color: "#333",
+                      }}
+                      onMouseOver={(e) => (e.currentTarget.style.color = "#000")}
+                      onMouseOut={(e) => (e.currentTarget.style.color = "#333")}>
                         Logout
                   </li>
                    )}
