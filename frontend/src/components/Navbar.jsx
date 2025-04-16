@@ -17,6 +17,7 @@ const Navbar = () => {
     if (error) {
       console.error("Error logging out:", error.message);
     } else {
+      localStorage.clear();
       alert("Logged out succesfully!");
       setUser(null); // Reset userId on successful logout
       console.log("Logged out successfully");
