@@ -216,6 +216,7 @@ const ImageSliderModal = ({ show = true, onClose }) => {
             icon={<IoShareOutline />}
             color="#ff9800"
             onClick={shareImage}
+            title="Share this image"
           />
           <IconButton
             icon={<IoGridOutline />}

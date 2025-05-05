@@ -1,6 +1,8 @@
 import React from 'react';
 
+
 const TryTheFit = ({ onClick, isAddedToQueue, className }) => {
+
   const buttonStyle = {
     position: 'relative',
     backgroundColor: 'white',
@@ -30,8 +32,7 @@ const TryTheFit = ({ onClick, isAddedToQueue, className }) => {
       onClick={onClick}
       className={className}
     >
-      {isAddedToQueue ? "Added to Queue" : "Try The Fit"}
-      <span style={sparkleStyle}>✨</span>
+      {isAddedToQueue ? "Added to Queue" : "Try The Look"}
     </button>
   );
 };
