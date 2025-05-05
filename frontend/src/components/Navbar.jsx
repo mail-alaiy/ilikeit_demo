@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React,{useEffect, useState} from "react";
 import { Link } from "react-router-dom";
-import logo from "../images/logo.jpg";
+import logo from "../images/logo.png";
 import supabase from "../supabaseClient";
 import { useAuth } from "../store/slice/AuthContext";
 
@@ -26,16 +26,6 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Banner */}
-      <div className="top-header">
-        <div className="banner-container">
-          <p className="banner-text">
-            GET ₹500 OFF ON ORDERS ABOVE ₹2000. USE CODE: TT500 | FREE SHIPPING
-            ON ORDERS ABOVE ₹999!
-          </p>
-        </div>
-      </div>
-
       {/* Main Navbar */}
       <nav className="navbar navbar-expand-lg bg-light text-uppercase fs-6 p-3 border-bottom">
         <div className="container-fluid px-0 px-sm-2">
