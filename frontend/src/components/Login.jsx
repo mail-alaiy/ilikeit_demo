@@ -195,7 +195,7 @@ const LoginSignupModal = ({ show = true}) => {
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </Form.Group>
-                  {/* Google Sign In Button */}
+                  {/* Google Sign In Button 
                   <Button
                     variant="light"
                     size="sm"
@@ -250,6 +250,7 @@ const LoginSignupModal = ({ show = true}) => {
                       Continue with Google
                     </span>
                   </Button>
+                  */}
                   <div className="d-flex justify-content-center mb-2">
                     <Button
                       variant="primary"
