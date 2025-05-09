@@ -1,12 +1,58 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { CheckCircleFill, XCircleFill } from "react-bootstrap-icons";
 import { Carousel } from "react-bootstrap";
 import './ImageUploadModal.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { nextStep } from "../store/slice/uiSlice";
+import supabase from '../supabaseClient';
 
 const Guidelines = () => {
     const dispatch = useDispatch();
+    const [error, setError] = useState("");
+    useEffect(() => {
+        const postUser = async () => {
+          try {
+            const {
+              data: { user },
+              error
+            } = await supabase.auth.getUser();
+    
+            if (error || !user) {
+              throw new Error("Failed to fetch user.");
+            }
+    
+            const user_id_by_brand = user.id;
+            const name = user.user_metadata?.name || user.email;
+    
+            const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/users/`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.REACT_APP_API_KEY}`
+              },
+              body: JSON.stringify({
+                name,
+                user_id_by_brand
+              })
+            });
+    
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.detail || "Failed to create user.");
+            }
+    
+            const newUser = await response.json();
+            console.log("User successfully created:", newUser);
+    
+          } catch (err) {
+            console.error("Error during user creation:", err.message);
+            setError(err.message);
+          }
+        };
+    
+        postUser();
+      }, []);
+
       const handleProceed = () => {
         dispatch(nextStep());
       };
