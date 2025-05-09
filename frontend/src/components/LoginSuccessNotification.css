@@ -1,0 +1,157 @@
+/* Modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+  }
+  
+  /* Card styles */
+  .login-card {
+    background-color: #2d1a47; /* Dark purple background */
+    border-radius: 16px;
+    width: 320px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Text styles */
+  .login-success-text {
+    color: white; /* Green success text */
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  
+  .login-title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  
+  .setup-text {
+    color: white;
+    font-size: 0.875rem;
+  }
+  
+  /* Avatar section container */
+  .avatar-section {
+    height: 200px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  /* Centering container for all avatar elements */
+  .avatar-center {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    height: 200px;
+  }
+  
+  /* Circles */
+  .circle {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid #8b5cf6;
+  }
+  
+  .circle-1 {
+    width: 192px;
+    height: 192px;
+    opacity: 0.05;
+  }
+  
+  .circle-2 {
+    width: 160px;
+    height: 160px;
+    opacity: 0.1;
+  }
+  
+  .circle-3 {
+    width: 128px;
+    height: 128px;
+    opacity: 0.15;
+  }
+  
+  .circle-4 {
+    width: 96px;
+    height: 96px;
+    opacity: 0.2;
+  }
+  
+  /* Glow effect */
+  .avatar-glow {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    background-color: #7e22ce;
+    border-radius: 50%;
+    opacity: 0.2;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.2;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.25;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 0.2;
+    }
+  }
+  
+  /* Avatar */
+  .avatar {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    background-color: #d1d5db;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Button styles */
+  .btn-continue {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px;
+    font-size: 0.75rem;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-continue:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+  }
+  
+  .btn-skip {
+    color: #c4b5fd; /* Light purple */
+    font-size: 0.75rem;
+    text-decoration: none;
+    padding: 0;
+  }
+  
+  .btn-skip:hover {
+    color: white;
+    text-decoration: none;
+  }
+  

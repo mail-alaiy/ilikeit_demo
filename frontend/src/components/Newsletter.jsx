@@ -67,7 +67,7 @@ const Newsletter = () => {
                 placeholder="Your Email Address"
               />
 
-              <button type="submit" className="btn btn-dark btn-lg text-uppercase w-100" disabled={status === "submitting"}>
+              <button type="submit" className="btn btn-dark btn-lg text-uppercase w-100" disabled={status === "submitting"} style={{backgroundColor:"#5a2d9c", color:"white", borderRadius:"20px"}}>
                 {status === "submitting"
                   ? "Submitting..."
                   : status === "success"

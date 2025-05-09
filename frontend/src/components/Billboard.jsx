@@ -39,10 +39,10 @@ const Billboard = () => {
   return (
     <section id="billboard" className="bg-light py-3 py-md-5">
       <div className="container px-3">
-        <h1 className="section-title text-center mt-3 mt-md-4 font-bold text-xl md:text-2xl">
+        <h1 className="section-title text-center mt-3 mt-md-4 font-bold text-xl md:text-2xl" style={{color:" #5a2d9c"}}>
           Featured Categories
         </h1>
-        <p className="text-center text-sm md:text-base mb-4">
+        <p className="text-center text-sm md:text-base mb-4 text-gray-700">
           Explore our curated collection of stylish and comfortable clothing
         </p>
 
@@ -72,7 +72,7 @@ const Billboard = () => {
           {categories.map((category, index) => (
             <SwiperSlide key={index}>
               <div className="banner-item rounded shadow-sm overflow-hidden h-full">
-                <div className="image-container">
+                <div className="billboard-image-container">
                   <img
                     src={category.img}
                     alt={category.name}
@@ -104,88 +104,95 @@ const Billboard = () => {
       </div>
 
       <style jsx>{`
-        .image-container {
-          position: relative;
-          overflow: hidden;
-        }
-        .image-container img {
-          transition: transform 0.3s ease;
-          width: 100%;
-          height: auto;
-          display: block;
-        }
-        .banner-item:hover .image-container img {
-          transform: scale(1.05);
-        }
-        .banner-content {
-          background: white;
-        }
-        .banner-item {
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          background: white;
-          transition: box-shadow 0.3s ease;
-        }
-        .banner-item:hover {
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        .btn-link {
-          color: #333;
-          position: relative;
-          padding-bottom: 2px;
-        }
-        .btn-link:after {
-          content: "";
-          position: absolute;
-          width: 0;
-          height: 2px;
-          bottom: 0;
-          left: 0;
-          background-color: currentColor;
-          transition: width 0.3s ease;
-        }
-        .btn-link:hover:after {
-          width: 100%;
-        }
+  .billboard-image-container {
+    position: relative;
+    overflow: hidden;
+  }
 
-        /* Enhanced navigation arrows for all devices */
-        .swiper-button-next,
-        .swiper-button-prev {
-          display: flex !important;
-          width: 40px;
-          height: 40px;
-          background: rgba(255, 255, 255, 0.8);
-          border-radius: 50%;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-        }
+  .billboard-image-container img {
+    transition: transform 0.3s ease;
+    width: 100%;
+    height: auto;
+    display: block;
+  }
 
-        .swiper-button-next:after,
-        .swiper-button-prev:after {
-          font-size: 18px !important;
-          color: #333;
-          font-weight: bold;
-        }
+  .banner-item:hover .billboard-image-container img {
+    transform: scale(1.05);
+  }
 
-        /* Mobile-specific navigation adjustments */
-        @media (max-width: 767px) {
-          .swiper-button-next,
-          .swiper-button-prev {
-            width: 30px;
-            height: 30px;
-          }
+  .banner-content {
+    background: white;
+  }
 
-          .swiper-button-next:after,
-          .swiper-button-prev:after {
-            font-size: 14px !important;
-          }
+  .banner-item {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    transition: box-shadow 0.3s ease;
+  }
 
-          .swiper-pagination {
-            display: block !important;
-            margin-top: 15px;
-          }
-        }
-      `}</style>
+  .banner-item:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-link {
+    color: #333;
+    position: relative;
+    padding-bottom: 2px;
+  }
+
+  .btn-link:after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: currentColor;
+    transition: width 0.3s ease;
+  }
+
+  .btn-link:hover:after {
+    width: 100%;
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    display: flex !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  }
+
+  .swiper-button-next:after,
+  .swiper-button-prev:after {
+    font-size: 18px !important;
+    color: #333;
+    font-weight: bold;
+  }
+
+  @media (max-width: 767px) {
+    .swiper-button-next,
+    .swiper-button-prev {
+      width: 30px;
+      height: 30px;
+    }
+
+    .swiper-button-next:after,
+    .swiper-button-prev:after {
+      font-size: 14px !important;
+    }
+
+    .swiper-pagination {
+      display: block !important;
+      margin-top: 15px;
+    }
+  }
+`}</style>
+
     </section>
   );
 };

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { Tooltip, Overlay} from "react-bootstrap";
 import { Modal, Button } from "react-bootstrap";
 import {
-  IoCloseOutline,
   IoHeartOutline,
   IoHeart,
   IoCartOutline,
@@ -11,10 +11,12 @@ import {
   IoShareOutline,
   IoGridOutline,
 } from "react-icons/io5";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { X } from "react-bootstrap-icons";
 import supabase from "../supabaseClient";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+
+const themeColor = "#5a2d9c";
 
 const ImageSliderModal = ({ show = true, onClose }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -22,10 +24,7 @@ const ImageSliderModal = ({ show = true, onClose }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isCarted, setIsCarted] = useState(false);
 
-  const images = useSelector((state) => {
-    return state.ui.images;
-  });
-
+  const images = useSelector((state) => state.ui.images);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,21 +33,13 @@ const ImageSliderModal = ({ show = true, onClose }) => {
         data: { user },
         error,
       } = await supabase.auth.getUser();
-
-      if (error) {
-        console.error("Failed to get user:", error.message);
+      if (error || !user) {
+        console.error("Failed to get user:", error?.message);
         onClose();
         return;
       }
-
-      if (!user) {
-        onClose();
-        return;
-      }
-
       setUserId(user?.id);
     };
-
     getUser();
   }, [onClose]);
 
@@ -63,37 +54,28 @@ const ImageSliderModal = ({ show = true, onClose }) => {
     setIsCarted(generatedCart.includes(imageUrl));
   }, [currentIndex, images]);
 
-  const handleNext = () => {
+  const handleNext = () =>
     setCurrentIndex((prev) => (prev + 1) % images.length);
-  };
-
-  const handlePrev = () => {
+  const handlePrev = () =>
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-  };
 
   const addToGeneratedWishlist = () => {
     const imageUrl = images[currentIndex];
-    const generatedWishlist =
+    const wishlist =
       JSON.parse(localStorage.getItem("generatedWishlist")) || [];
-
-    if (!generatedWishlist.includes(imageUrl)) {
-      generatedWishlist.push(imageUrl);
-      localStorage.setItem(
-        "generatedWishlist",
-        JSON.stringify(generatedWishlist)
-      );
+    if (!wishlist.includes(imageUrl)) {
+      wishlist.push(imageUrl);
+      localStorage.setItem("generatedWishlist", JSON.stringify(wishlist));
       setIsWishlisted(true);
     }
   };
 
   const addToGeneratedCart = () => {
     const imageUrl = images[currentIndex];
-    const generatedCart =
-      JSON.parse(localStorage.getItem("generatedCart")) || [];
-
-    if (!generatedCart.includes(imageUrl)) {
-      generatedCart.push(imageUrl);
-      localStorage.setItem("generatedCart", JSON.stringify(generatedCart));
+    const cart = JSON.parse(localStorage.getItem("generatedCart")) || [];
+    if (!cart.includes(imageUrl)) {
+      cart.push(imageUrl);
+      localStorage.setItem("generatedCart", JSON.stringify(cart));
       setIsCarted(true);
     }
   };
@@ -101,16 +83,9 @@ const ImageSliderModal = ({ show = true, onClose }) => {
   const shareImage = () => {
     const imageUrl = images[currentIndex];
     if (navigator.share) {
-      navigator
-        .share({
-          title: "Check out this image",
-          url: imageUrl,
-        })
-        .catch((error) => console.error("Error sharing:", error));
+      navigator.share({ title: "Check this out", url: imageUrl });
     } else {
-      navigator.clipboard.writeText(imageUrl).then(() => {
-        alert("Image link copied to clipboard!");
-      });
+      navigator.clipboard.writeText(imageUrl).then(() => alert("Link copied"));
     }
   };
 
@@ -121,157 +96,157 @@ const ImageSliderModal = ({ show = true, onClose }) => {
       centered
       size="md"
       backdrop="static"
-      keyboard={true}
-      className="image-slider-modal"
+      keyboard
+      className="border-0"
     >
       <Modal.Body
-        className="bg-white position-relative d-flex flex-column align-items-center justify-content-center"
         style={{
-          padding: "2rem",
-          borderRadius: "1rem",
-          backgroundColor: "#f9f9f9",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+          padding: "1.5rem",
+          backgroundColor: "#ffffff",
+          borderRadius: "12px",
+          boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
+          position: "relative",
         }}
       >
-        {/* Close Button */}
-        <Button
-          variant="light"
+        {/* Close */}
+        <button
           onClick={onClose}
-          className="position-absolute top-0 end-0 m-3 rounded-circle d-flex align-items-center justify-content-center"
           style={{
-            width: "36px",
-            height: "36px",
-            color: "#000",
-            backgroundColor: "#fff",
-            border: "1px solid #ddd",
-            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+            position: "absolute",
+            top: 12,
+            right: 12,
+            background: "none",
+            border: "none",
+            color: "#333",
+            padding: 4,
           }}
         >
-          <IoCloseOutline size={20} />
-        </Button>
+          <X size={20} />
+        </button>
 
-        {/* Left Arrow */}
-        <div
-          className="position-absolute top-50 start-0 translate-middle-y"
-          style={{ zIndex: 2 }}
-        >
+        {/* Image + Arrows */}
+        <div className="d-flex align-items-center justify-content-between mb-3">
           <ArrowButton onClick={handlePrev}>
-            <IoChevronBackOutline size={24} />
+            <IoChevronBackOutline size={20} />
           </ArrowButton>
-        </div>
-
-        {/* Image */}
-        {images.length > 0 ? (
-          <img
-            src={images[currentIndex]}
-            alt={`Image ${currentIndex + 1}`}
-            style={{
-              maxHeight: "70vh",
-              maxWidth: "100%",
-              objectFit: "contain",
-              borderRadius: "1rem",
-              transition: "all 0.3s ease-in-out",
-              boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
-            }}
-          />
-        ) : (
-          <div className="my-5 text-muted">Start trying on images</div>
-        )}
-
-        {/* Right Arrow */}
-        <div
-          className="position-absolute top-50 end-0 translate-middle-y"
-          style={{ zIndex: 2 }}
-        >
+          {images.length > 0 ? (
+            <img
+              src={images[currentIndex]}
+              alt="preview"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "60vh",
+                objectFit: "contain",
+                borderRadius: "8px",
+              }}
+            />
+          ) : (
+            <div className="text-muted">No images</div>
+          )}
           <ArrowButton onClick={handleNext}>
-            <IoChevronForwardOutline size={24} />
+            <IoChevronForwardOutline size={20} />
           </ArrowButton>
         </div>
 
-        {/* Bottom Icons */}
-        <div className="d-flex justify-content-around gap-3 mt-4">
-          <IconButton
-            icon={
-              isWishlisted ? (
-                <IoHeart style={{ fill: "#e91e63" }} />
-              ) : (
-                <IoHeartOutline />
-              )
-            }
-            color={isWishlisted ? "#e91e63" : "#000"}
-            onClick={addToGeneratedWishlist}
-          />
-          <IconButton
-            icon={
-              isCarted ? (
-                <IoCart style={{ fill: "#0d6efd" }} />
-              ) : (
-                <IoCartOutline />
-              )
-            }
-            color={isCarted ? "#0d6efd" : "#000"}
-            onClick={addToGeneratedCart}
-          />
-          <IconButton
-            icon={<IoShareOutline />}
-            color="#ff9800"
-            onClick={shareImage}
-            title="Share this image"
-          />
-          <IconButton
-            icon={<IoGridOutline />}
-            color="#6c757d"
-            onClick={() => {
-              onClose();
-              navigate("/fits");
-            }}
-          />
+        {/* Actions */}
+        <div className="d-flex justify-content-center gap-3 mt-2">
+        <IconButton
+  icon={isWishlisted ? <IoHeart /> : <IoHeartOutline />}
+  onClick={addToGeneratedWishlist}
+  color={isWishlisted ? themeColor : "#666"}
+  tooltip="Add to Wishlist"
+/>
+<IconButton
+  icon={isCarted ? <IoCart /> : <IoCartOutline />}
+  onClick={addToGeneratedCart}
+  color={isCarted ? themeColor : "#666"}
+  tooltip="Add to Cart"
+/>
+<IconButton
+  icon={<IoShareOutline />}
+  onClick={shareImage}
+  color="#666"
+  tooltip="Share"
+/>
+<IconButton
+  icon={<IoGridOutline />}
+  onClick={() => {
+    onClose();
+    navigate("/fits");
+  }}
+  color="#666"
+  tooltip="View All"
+/>
+
         </div>
       </Modal.Body>
     </Modal>
   );
 };
 
-const IconButton = ({ icon, color, onClick }) => (
-  <Button
-    variant="light"
-    onClick={onClick}
-    className="rounded-circle d-flex align-items-center justify-content-center"
-    style={{
-      width: "52px",
-      height: "52px",
-      color,
-      backgroundColor: "#fff",
-      border: "1px solid #ddd",
-      boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-      transition: "transform 0.2s ease-in-out",
-    }}
-    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-  >
-    {icon}
-  </Button>
-);
+const IconButton = ({ icon, onClick, color, tooltip }) => {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const target = useRef(null);
+
+  const handleMouseEnter = () => setShowTooltip(true);
+  const handleMouseLeave = () => setShowTooltip(false);
+  const handleClick = () => {
+    setShowTooltip(false);
+    onClick();
+  };
+
+  return (
+    <>
+      <button
+        ref={target}
+        onClick={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: "50%",
+          border: "none",
+          backgroundColor: "#f5f5f5",
+          color,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          transition: "background-color 0.2s",
+        }}
+      >
+        {icon}
+      </button>
+
+      <Overlay target={target.current} show={showTooltip} placement="top">
+        {(props) => (
+          <Tooltip id="button-tooltip" {...props}>
+            {tooltip}
+          </Tooltip>
+        )}
+      </Overlay>
+    </>
+  );
+};
 
 const ArrowButton = ({ onClick, children }) => (
-  <Button
-    variant="light"
+  <button
     onClick={onClick}
-    className="rounded-circle d-flex align-items-center justify-content-center"
     style={{
-      width: "44px",
-      height: "44px",
-      color: "#000",
-      backgroundColor: "#fff",
-      border: "1px solid #ddd",
-      boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-      transition: "transform 0.2s ease-in-out",
+      border: "none",
+      backgroundColor: "transparent",
+      color: "#888",
+      padding: 8,
+      borderRadius: "50%",
+      transition: "background-color 0.2s",
     }}
-    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
+    onMouseLeave={(e) =>
+      (e.currentTarget.style.backgroundColor = "transparent")
+    }
   >
     {children}
-  </Button>
+  </button>
 );
 
 export default ImageSliderModal;

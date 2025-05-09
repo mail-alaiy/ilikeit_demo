@@ -197,7 +197,7 @@ const NewArrivals = () => {
           {products.map((product, index) => (
             <SwiperSlide key={product.id}>
               <div className="product-item" onClick={() => navigate(`/product/${encodeURIComponent(product.name)}`, { state: { product } })}>
-                <div className="image-container">
+                <div className="newarrival-image-container">
                   <img 
                     src={product.images?.[0]?.url || "fallback-image.jpg"} 
                     alt={product.name} 
@@ -245,13 +245,14 @@ const NewArrivals = () => {
           cursor: pointer;
         }
 
-        .image-container {
+        .newarrival-image-container {
           position: relative;
           display: inline-block;
           width: 100%;
+          height:400px;
         }
 
-        .image-container img {
+        .newarrival-image-container img {
           width: 100%;
           border-radius: 10px;
           object-fit: cover;

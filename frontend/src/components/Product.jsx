@@ -174,10 +174,10 @@ const Product = () => {
           <span className="fs-3 fw-bold text-primary d-block mb-3">₹{product.price.toFixed(2)}</span>
           <p className="text-muted">Availability: <span className="fw-semibold text-success">In Stock</span></p>
 
-          <button className="btn btn-primary w-100 rounded-pill shadow-sm" onClick={toggleCart}>
+          <button className="btn btn-primary w-100 rounded-pill shadow-sm" onClick={toggleCart} style={{backgroundColor:"#5a2d9c"}}>
             {product.cart ? "Remove from Cart" : "Add to Cart"}
           </button>
-          <button className="btn btn-outline-dark w-100 mt-3 rounded-pill shadow-sm" onClick={toggleWishlist}>
+          <button className="btn btn-outline-dark w-100 mt-3 rounded-pill shadow-sm" onClick={toggleWishlist} style={{padding:"2px"}}>
             {liked ? "Remove from Wishlist" : "Add to Wishlist"}
           </button>
           <TryTheFit

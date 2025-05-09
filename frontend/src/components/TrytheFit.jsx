@@ -6,9 +6,9 @@ const TryTheFit = ({ onClick, isAddedToQueue, className }) => {
   const buttonStyle = {
     position: 'relative',
     backgroundColor: 'white',
-    color: '#1D3557',
+    color: '#5a2d9c',
     padding: '6px 10px',
-    border: '1px solid #1D3557',
+    border: '1px solid  #5a2d9c',
     borderRadius: '8px',
     fontSize: '0.7em',
     cursor: 'pointer',

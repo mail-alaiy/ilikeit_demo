@@ -1,8 +1,8 @@
 import { useSelector } from 'react-redux';
-import LoginSignupModal from './Login';
-import AddNameScreen from './AddName';
-import UploadPicturesScreen from './UploadPictures';
-import ImageUploadSuccessDrawer from './SelectedImage';
+import LoginSuccessNotification from './Logins';
+import Guidelines from './Guidelines';
+import ImageUploadComponent from './ImageUpload';
+import ImageUploadSuccess from './ImageUploadSuccess';
 
 const DrawerOverlay = () => {
   const { isOpen, step } = useSelector((state) => state.ui.drawer);
@@ -11,10 +11,10 @@ const DrawerOverlay = () => {
 
   const renderStep = () => {
     switch (step) {
-      case 1: return <LoginSignupModal />;
-      case 2: return <AddNameScreen />;
-      case 3: return <UploadPicturesScreen />;
-      case 4: return <ImageUploadSuccessDrawer />;
+      case 1: return <LoginSuccessNotification/>;
+      case 2: return <Guidelines />;
+      case 3: return <ImageUploadComponent />;
+      case 4: return <ImageUploadSuccess />;
       default: return null;
     }
   };

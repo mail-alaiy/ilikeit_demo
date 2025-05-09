@@ -233,57 +233,126 @@ const Shirts = () => {
       </div>
       {/* Styles */}
       <style>{`
-        .product-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 20px;
-        }
+  #new-arrivals {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
 
-        .product-item {
-          text-align: center;
-          position: relative;
-        }
+  h4 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: bold;
+  }
 
-        .image-container {
-          position: relative;
-          display: inline-block;
-        }
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 30px;
+  }
 
-        .button-column {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          margin-top: 10px;
-        }
+  .product-item {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 16px;
+    cursor: pointer;
+  }
 
-        .image-container img {
-          width: 100%;
-          border-radius: 10px;
-        }
+  .product-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  }
 
-        .heart-button {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          background: none;
-          border: none;
-          font-size: 24px;
-          cursor: pointer;
-          transition: transform 0.2s ease-in-out;
-        }
+ .image-container {
+  width: 100%;
+  height: 300px; /* Default height for desktop */
+  overflow: hidden;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  position: relative;
+}
 
-        .heart-button:hover {
-          transform: scale(1.1);
-        }
+@media (max-width: 768px) {
+  .image-container {
+    height: 250px; /* Smaller height for tablet and mobile */
+  }
+}
 
-        .outlined-heart {
-          color: #777; 
-        }
+@media (max-width: 480px) {
+  .image-container {
+    height: 200px; /* Even smaller height for very small screens */
+  }
+}
 
-        .filled-heart {
-          color: red;
-        }
-      `}</style>
+
+  .image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 10px;
+  }
+
+  .heart-button {
+  position: absolute;
+  top: 10px; /* Adjust this value to get closer/further from the top */
+  right: 10px; /* Adjust this value to get closer/further from the right */
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 2; /* Ensures it stays on top of the image */
+}
+
+  .heart-button:hover {
+    transform: scale(1.1);
+  }
+
+  .outlined-heart {
+    color: #999;
+  }
+
+  .filled-heart {
+    color: #e60023;
+  }
+
+  .button-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .add-to-cart {
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    background-color: #5a2d9c;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .add-to-cart:hover {
+    background-color: #444;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+    margin: 8px 0 4px;
+    color: #333;
+  }
+
+  p {
+    margin: 0;
+    color: #111;
+  }
+`}</style>
+
     </section>
   );
 };
