@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Tooltip, Overlay} from "react-bootstrap";
+import { Tooltip, Overlay } from "react-bootstrap";
 import { Modal, Button } from "react-bootstrap";
 import {
   IoHeartOutline,
@@ -98,17 +98,18 @@ const ImageSliderModal = ({ show = true, onClose }) => {
       backdrop="static"
       keyboard
       className="border-0"
+      style={{ maxWidth: '100%' }}
     >
       <Modal.Body
         style={{
-          padding: "1.5rem",
+          padding: "1rem",
           backgroundColor: "#ffffff",
           borderRadius: "12px",
           boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
           position: "relative",
         }}
       >
-        {/* Close */}
+        {/* Close Button */}
         <button
           onClick={onClose}
           style={{
@@ -135,7 +136,7 @@ const ImageSliderModal = ({ show = true, onClose }) => {
               alt="preview"
               style={{
                 maxWidth: "100%",
-                maxHeight: "60vh",
+                maxHeight: "50vh", // Adjust maxHeight for better responsiveness
                 objectFit: "contain",
                 borderRadius: "8px",
               }}
@@ -150,34 +151,33 @@ const ImageSliderModal = ({ show = true, onClose }) => {
 
         {/* Actions */}
         <div className="d-flex justify-content-center gap-3 mt-2">
-        <IconButton
-  icon={isWishlisted ? <IoHeart /> : <IoHeartOutline />}
-  onClick={addToGeneratedWishlist}
-  color={isWishlisted ? themeColor : "#666"}
-  tooltip="Add to Wishlist"
-/>
-<IconButton
-  icon={isCarted ? <IoCart /> : <IoCartOutline />}
-  onClick={addToGeneratedCart}
-  color={isCarted ? themeColor : "#666"}
-  tooltip="Add to Cart"
-/>
-<IconButton
-  icon={<IoShareOutline />}
-  onClick={shareImage}
-  color="#666"
-  tooltip="Share"
-/>
-<IconButton
-  icon={<IoGridOutline />}
-  onClick={() => {
-    onClose();
-    navigate("/fits");
-  }}
-  color="#666"
-  tooltip="View All"
-/>
-
+          <IconButton
+            icon={isWishlisted ? <IoHeart /> : <IoHeartOutline />}
+            onClick={addToGeneratedWishlist}
+            color={isWishlisted ? themeColor : "#666"}
+            tooltip="Add to Wishlist"
+          />
+          <IconButton
+            icon={isCarted ? <IoCart /> : <IoCartOutline />}
+            onClick={addToGeneratedCart}
+            color={isCarted ? themeColor : "#666"}
+            tooltip="Add to Cart"
+          />
+          <IconButton
+            icon={<IoShareOutline />}
+            onClick={shareImage}
+            color="#666"
+            tooltip="Share"
+          />
+          <IconButton
+            icon={<IoGridOutline />}
+            onClick={() => {
+              onClose();
+              navigate("/fits");
+            }}
+            color="#666"
+            tooltip="View All"
+          />
         </div>
       </Modal.Body>
     </Modal>
@@ -203,8 +203,8 @@ const IconButton = ({ icon, onClick, color, tooltip }) => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         style={{
-          width: 36,
-          height: 36,
+          width: 40, // Slightly larger for mobile
+          height: 40,
           borderRadius: "50%",
           border: "none",
           backgroundColor: "#f5f5f5",

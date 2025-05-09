@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import { CheckCircleFill, XCircleFill } from "react-bootstrap-icons";
 import { Carousel } from "react-bootstrap";
+import { X } from "react-bootstrap-icons";
 import './ImageUploadModal.css';
 import { useSelector, useDispatch } from 'react-redux';
-import { nextStep } from "../store/slice/uiSlice";
+import { closeDrawer,nextStep } from "../store/slice/uiSlice";
 import supabase from '../supabaseClient';
 
 const Guidelines = () => {
@@ -60,7 +61,23 @@ const Guidelines = () => {
   return (
     <div className="modal-backdrop-custom fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="upload-modal card shadow-sm p-3" style={{ aspectRatio: "3/4" }}>
-        <div style={{textAlign:"center"}}>
+        <div style={{textAlign:"center", position:"relative"}}>
+            <button
+              onClick={() => dispatch(closeDrawer())}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                background: "none",
+                border: "none",
+                padding: 0,
+                cursor: "pointer",
+                zIndex: 10,
+              }}
+              aria-label="Close"
+            >
+              <X size={25} />
+            </button>
         <h2 className="text-2xl font-light text-center mb-1" style={{ color: "#6f42c1", textAlign:"center", fontSize:"24px", marginTop:"20px", marginBottom:"10px" }}>
           GUIDELINES
         </h2>
