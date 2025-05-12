@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 
 const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
@@ -18,7 +18,8 @@ const Cart = () => {
     const fetchCart = async () => {
       setLoading(true);
       const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-      const storedGenerated = JSON.parse(localStorage.getItem("generatedCart")) || [];
+      const storedGenerated =
+        JSON.parse(localStorage.getItem("generatedCart")) || [];
 
       setGeneratedImages(storedGenerated);
 
@@ -76,26 +77,34 @@ const Cart = () => {
     localStorage.setItem("cart", JSON.stringify(updatedCart.map((p) => p.id))); // Store only IDs
   };
 
+  const toggleGeneratedCart = (urlToRemove) => {
+    const updatedGenerated = generatedImages.filter(
+      (url) => url !== urlToRemove
+    );
+    setGeneratedImages(updatedGenerated);
+    localStorage.setItem("generatedCart", JSON.stringify(updatedGenerated));
+  };
+
   return (
     <div className="container py-5">
       {/* Back Button */}
       <div className="mb-4">
-        <button 
-          onClick={handleBack} 
+        <button
+          onClick={handleBack}
           className="btn btn-link p-0 bg-transparent d-flex align-items-center"
           style={{
-            fontSize: "1rem", 
+            fontSize: "1rem",
             color: "#6c757d",
-            transition: "transform 0.2s ease", 
-            paddingLeft: "0"
+            transition: "transform 0.2s ease",
+            paddingLeft: "0",
           }}
         >
-          <i 
-            className="bi bi-arrow-left-circle" 
-            style={{ fontSize: "1.5rem" }} 
+          <i
+            className="bi bi-arrow-left-circle"
+            style={{ fontSize: "1.5rem" }}
           />
-          <span 
-            className="ms-2" 
+          <span
+            className="ms-2"
             style={{ fontSize: "1rem", fontWeight: "500" }}
           >
             Back
@@ -107,7 +116,8 @@ const Cart = () => {
           <div className="d-flex justify-content-between align-items-center">
             <h1 className="display-5 fw-bold text-primary mb-0">My Cart</h1>
             <div className="badge bg-light text-secondary px-3 py-2 rounded-pill">
-              {cart.length + generatedImages.length} {cart.length + generatedImages.length === 1 ? "item" : "items"}
+              {cart.length + generatedImages.length}{" "}
+              {cart.length + generatedImages.length === 1 ? "item" : "items"}
             </div>
           </div>
           <hr className="mt-3 mb-4" />
@@ -123,18 +133,34 @@ const Cart = () => {
         </div>
       ) : cart.length > 0 || generatedImages.length > 0 ? (
         <div className="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-          {generatedImages.map((url, index) => (
-            <div key={`generated-${index}`} className="col">
+          {generatedImages.map((url) => (
+            <div key={url} className="col">
               <div className="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
+                <div className="position-absolute top-0 end-0 m-3 z-index-1">
+                  <button
+                    className="btn btn-light btn-sm rounded-circle shadow-sm p-2"
+                    onClick={() => toggleGeneratedCart(url)}
+                    aria-label="Remove generated image"
+                  >
+                    <i className="bi bi-trash text-danger" />
+                  </button>
+                </div>
 
                 <img
                   src={url}
-                  alt={`Generated ${index}`}
+                  alt="Generated"
                   className="card-img-top img-fluid"
                 />
+
+                <div className="card-body p-4">
+                  <div className="d-flex justify-content-between align-items-center mt-3">
+                    <span className="fs-5 text-muted">Virtual Fit Preview</span>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
+
           {cart.map((product) => (
             <div key={product.id} className="col">
               <div className="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
@@ -158,7 +184,9 @@ const Cart = () => {
                   <h5 className="card-title mb-2">{product.name}</h5>
                   <div className="d-flex justify-content-between align-items-center mt-3">
                     <div className="price-tag">
-                      <span className="fs-4 fw-bold text-primary">₹{product.price.toFixed(2)}</span>
+                      <span className="fs-4 fw-bold text-primary">
+                        ₹{product.price.toFixed(2)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -168,11 +196,18 @@ const Cart = () => {
         </div>
       ) : (
         <div className="text-center py-5 my-4 bg-light bg-opacity-50 rounded-3">
-          <i className="bi bi-heart text-muted mb-3" style={{ fontSize: "3rem" }} />
+          <i
+            className="bi bi-heart text-muted mb-3"
+            style={{ fontSize: "3rem" }}
+          />
           <h4 className="text-muted mb-2">Your cart is empty</h4>
-          <p className="text-muted mb-4">Browse our catalog and add items you love</p>
-          <button className="btn btn-primary rounded-pill px-4 py-2"
-          onClick={() => navigate('/')}>
+          <p className="text-muted mb-4">
+            Browse our catalog and add items you love
+          </p>
+          <button
+            className="btn btn-primary rounded-pill px-4 py-2"
+            onClick={() => navigate("/")}
+          >
             Explore Products
           </button>
         </div>

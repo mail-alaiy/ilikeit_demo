@@ -168,7 +168,7 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
         <div className="image-upload-body">
           <Dropzone
             onDrop={handleDrop}
-            accept={{ "image/jpeg": [], "image/png": [] }}
+            accept={{ "image/jpeg": [], "image/png": [], "image/avif": [] }}
             multiple={false}
           >
             {({ getRootProps, getInputProps }) => (
@@ -183,7 +183,7 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
                     <p className="upload-text">Choose or capture a photo</p>
                     <small className="upload-note">Maximum file: 50MB</small>
                     <br />
-                    <small className="upload-note-italic">Supported formats: JPEG, PNG</small>
+                    <small className="upload-note-italic">Supported formats: JPEG, PNG, AVIF</small>
                   </div>
                 ) : (
                   <div className="image-preview-container">
