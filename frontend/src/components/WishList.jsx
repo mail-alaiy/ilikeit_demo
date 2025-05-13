@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 
 const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
@@ -15,11 +15,16 @@ const Wishlist = () => {
     navigate(-1);
   };
 
+  const handleAddToCart = (product) => {
+    alert("Added to Cart");
+  };
+
   useEffect(() => {
     const fetchWishlist = async () => {
       setLoading(true);
       const storedWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
-      const storedGenerated = JSON.parse(localStorage.getItem("generatedWishlist")) || [];
+      const storedGenerated =
+        JSON.parse(localStorage.getItem("generatedWishlist")) || [];
 
       setGeneratedImages(storedGenerated);
 
@@ -74,29 +79,32 @@ const Wishlist = () => {
   const toggleWishlist = (id) => {
     const updatedWishlist = wishlist.filter((product) => product.id !== id);
     setWishlist(updatedWishlist);
-    localStorage.setItem("wishlist", JSON.stringify(updatedWishlist.map((p) => p.id)));
+    localStorage.setItem(
+      "wishlist",
+      JSON.stringify(updatedWishlist.map((p) => p.id))
+    );
   };
 
   return (
     <div className="container py-5">
       {/* Back Button */}
       <div className="mb-4">
-        <button 
-          onClick={handleBack} 
+        <button
+          onClick={handleBack}
           className="btn btn-link p-0 bg-transparent d-flex align-items-center"
           style={{
-            fontSize: "1rem", 
+            fontSize: "1rem",
             color: "#6c757d",
-            transition: "transform 0.2s ease", 
-            paddingLeft: "0"
+            transition: "transform 0.2s ease",
+            paddingLeft: "0",
           }}
         >
-          <i 
-            className="bi bi-arrow-left-circle" 
-            style={{ fontSize: "1.5rem" }} 
+          <i
+            className="bi bi-arrow-left-circle"
+            style={{ fontSize: "1.5rem" }}
           />
-          <span 
-            className="ms-2" 
+          <span
+            className="ms-2"
             style={{ fontSize: "1rem", fontWeight: "500" }}
           >
             Back
@@ -109,7 +117,10 @@ const Wishlist = () => {
           <div className="d-flex justify-content-between align-items-center">
             <h1 className="display-5 fw-bold text-primary mb-0">My Wishlist</h1>
             <div className="badge bg-light text-secondary px-3 py-2 rounded-pill">
-              {wishlist.length + generatedImages.length} {(wishlist.length + generatedImages.length) === 1 ? "item" : "items"}
+              {wishlist.length + generatedImages.length}{" "}
+              {wishlist.length + generatedImages.length === 1
+                ? "item"
+                : "items"}
             </div>
           </div>
           <hr className="mt-3 mb-4" />
@@ -128,12 +139,24 @@ const Wishlist = () => {
           {generatedImages.map((url, index) => (
             <div key={`generated-${index}`} className="col">
               <div className="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
-
                 <img
                   src={url}
                   alt={`Generated ${index}`}
                   className="card-img-top img-fluid"
                 />
+                <div className="card-body p-4">
+                  <button
+                    className="btn btn-primary w-100 mt-3"
+                    onClick={() =>
+                      handleAddToCart({
+                        image: url,
+                        name: `Generated Image ${index}`,
+                      })
+                    }
+                  >
+                    Add to Cart
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -157,12 +180,20 @@ const Wishlist = () => {
                 />
 
                 <div className="card-body p-4">
-                  <h5 className="card-title mb-2">{product.name}</h5>
+                <h5 className="card-title mb-2 fs-6 fs-md-5">{product.name}</h5>
                   <div className="d-flex justify-content-between align-items-center mt-3">
                     <div className="price-tag">
-                      <span className="fs-4 fw-bold text-primary">₹{product.price.toFixed(2)}</span>
+                      <span className="fs-6 fs-md-4 fw-bold text-primary">
+                        ₹{product.price.toFixed(2)}
+                      </span>
                     </div>
                   </div>
+                  <button
+                    className="btn btn-primary w-100 mt-3"
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    Add to Cart
+                  </button>
                 </div>
               </div>
             </div>
@@ -170,10 +201,18 @@ const Wishlist = () => {
         </div>
       ) : (
         <div className="text-center py-5 my-4 bg-light bg-opacity-50 rounded-3">
-          <i className="bi bi-heart text-muted mb-3" style={{ fontSize: "3rem" }} />
+          <i
+            className="bi bi-heart text-muted mb-3"
+            style={{ fontSize: "3rem" }}
+          />
           <h4 className="text-muted mb-2">Your wishlist is empty</h4>
-          <p className="text-muted mb-4">Browse our catalog and save items you love</p>
-          <button className="btn btn-primary rounded-pill px-4 py-2" onClick={() => navigate('/')}>
+          <p className="text-muted mb-4">
+            Browse our catalog and save items you love
+          </p>
+          <button
+            className="btn btn-primary rounded-pill px-4 py-2"
+            onClick={() => navigate("/")}
+          >
             Explore Products
           </button>
         </div>
