@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
       } else if (event === "SIGNED_OUT") {
         setUser(null);
         localStorage.clear();
+        window.location.reload();
       }
     });
 

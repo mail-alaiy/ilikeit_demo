@@ -22,6 +22,7 @@ const Navbar = () => {
       localStorage.clear();
       alert("Logged out successfully!");
       setUser(null);
+      window.location.reload();
     }
   };
 
