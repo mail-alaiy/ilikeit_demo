@@ -21,6 +21,10 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
 
   const handleDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
+     if (file.size > 5 * 1024 * 1024) {
+      alert('File size exceeds 5MB. Please choose a smaller image.');
+      return;
+    }
     const imageUrl = URL.createObjectURL(file);
     EXIF.getData(file, function () {
       const orientation = EXIF.getTag(this, "Orientation");
@@ -181,7 +185,7 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
                   <div className="upload-placeholder">
                     <UploadCloud size={24} className="upload-icon" />
                     <p className="upload-text">Choose or capture a photo</p>
-                    <small className="upload-note">Maximum file: 50MB</small>
+                    <small className="upload-note">Maximum file: 5MB</small>
                     <br />
                     <small className="upload-note-italic">Supported formats: JPEG, PNG, AVIF</small>
                   </div>
