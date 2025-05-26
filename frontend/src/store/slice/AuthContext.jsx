@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
         setUser(session?.user);
       } else if (event === "SIGNED_OUT") {
         setUser(null);
+        localStorage.clear();
       }
     });
 
