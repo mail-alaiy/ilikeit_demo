@@ -77,9 +77,10 @@ const App = () => {
 
         const data = await response.json();
         console.log(data,"Data");
-        const imageUrls = data.map((img) => img.inference_image_url).reverse();
-        console.log(imageUrls);
-        dispatch(setInitialImages(imageUrls));
+        const reversedData = data.reverse();
+
+      // Dispatch full data array to Redux
+      dispatch(setInitialImages(reversedData));
       } catch (error) {
         console.error("Failed to fetch images:", error);
       }
