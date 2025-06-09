@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 
+// Ensure these environment variables are correctly loaded, e.g., via a .env file
 const HYGRAPH_API = process.env.REACT_APP_HYGRAPH_API;
 const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 
@@ -9,6 +10,8 @@ const Wishlist = () => {
   const [wishlist, setWishlist] = useState([]);
   const [generatedImages, setGeneratedImages] = useState([]);
   const [loading, setLoading] = useState(true);
+  // currentIndex is not needed globally for the image slider within each card
+
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -26,14 +29,13 @@ const Wishlist = () => {
       const storedGenerated =
         JSON.parse(localStorage.getItem("generatedWishlist")) || [];
 
-      setGeneratedImages(storedGenerated);
-
-      if (storedWishlist.length === 0) {
-        setLoading(false);
-        return;
-      }
+      // Extract garment IDs from generated cart
+      const garmentIds = storedGenerated.map(
+        (item) => item.garment_id_by_brand
+      );
 
       try {
+        // Fetch product data from Hygraph for both regular and generated cart
         const response = await fetch(HYGRAPH_API, {
           method: "POST",
           headers: {
@@ -42,28 +44,48 @@ const Wishlist = () => {
           },
           body: JSON.stringify({
             query: `
-              query GetProducts($ids: [ID!]) {
-                products(where: { id_in: $ids }) {
-                  id
-                  name
-                  price
-                  category
-                  images {
-                    url
-                  }
+            query GetProducts($ids: [ID!]) {
+              products(where: { id_in: $ids }) {
+                id
+                name
+                price
+                category
+                images {
+                  url
                 }
               }
-            `,
-            variables: { ids: storedWishlist },
+            }
+          `,
+            variables: { ids: [...storedWishlist, ...garmentIds] },
           }),
         });
 
         const { data } = await response.json();
+
         if (data && data.products) {
-          setWishlist(data.products);
+          // Separate regular and generated products
+          const wishlistItems = data.products.filter((product) =>
+            storedWishlist.includes(product.id)
+          );
+
+          const generatedItems = storedGenerated.map((item) => {
+            const matchedProduct = data.products.find(
+              (p) => p.id === item.garment_id_by_brand
+            );
+            return {
+              ...item,
+              product: matchedProduct || null,
+              // Add a state for each generated item to track which image is currently shown
+              showGenerated: true, // true for generated image, false for original product image
+            };
+          });
+
+          setWishlist(wishlistItems);
+          setGeneratedImages(generatedItems);
         } else {
-          console.error("Invalid data structure from Hygraph:", data);
+          console.error("Invalid product data from Hygraph:", data);
           setWishlist([]);
+          setGeneratedImages([]);
         }
       } catch (error) {
         console.error("Error fetching wishlist items:", error);
@@ -82,6 +104,25 @@ const Wishlist = () => {
     localStorage.setItem(
       "wishlist",
       JSON.stringify(updatedWishlist.map((p) => p.id))
+    );
+  };
+
+  const toggleGeneratedWishlist = (itemToRemove) => {
+    const updatedGenerated = generatedImages.filter(
+      (item) => item.id !== itemToRemove.id
+    );
+    setGeneratedImages(updatedGenerated);
+    localStorage.setItem("generatedWishlist", JSON.stringify(updatedGenerated));
+  };
+
+  // New function to toggle the image for a specific generated item
+  const toggleGeneratedImage = (itemId) => {
+    setGeneratedImages((prevGeneratedImages) =>
+      prevGeneratedImages.map((item) =>
+        item.id === itemId
+          ? { ...item, showGenerated: !item.showGenerated }
+          : item
+      )
     );
   };
 
@@ -136,23 +177,60 @@ const Wishlist = () => {
         </div>
       ) : wishlist.length > 0 || generatedImages.length > 0 ? (
         <div className="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-          {generatedImages.map((url, index) => (
-            <div key={`generated-${index}`} className="col">
+          {generatedImages.map((item) => (
+            <div key={item.id} className="col">
               <div className="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
+                <div className="position-absolute top-0 end-0 m-3 z-index-1">
+                  <button
+                    className="btn btn-light btn-sm rounded-circle shadow-sm p-2"
+                    onClick={() => toggleGeneratedWishlist(item)}
+                    aria-label="Remove generated image"
+                  >
+                    <i className="bi bi-trash text-danger" />
+                  </button>
+                </div>
+
+                {/* Image Slider Controls */}
+                <div className="position-absolute top-0 start-0 m-3 z-index-1">
+                  <button
+                    className="btn btn-light btn-sm rounded-circle shadow-sm p-2"
+                    onClick={() => toggleGeneratedImage(item.id)}
+                    aria-label="Toggle image"
+                    disabled={!item.product?.images?.[0]?.url} // Disable if original product image is not available
+                  >
+                    {item.showGenerated ? (
+                      <i className="bi bi-arrow-left-right" title="Show Original" />
+                    ) : (
+                      <i className="bi bi-magic" title="Show Generated" />
+                    )}
+                  </button>
+                </div>
+
                 <img
-                  src={url}
-                  alt={`Generated ${index}`}
+                  src={
+                    item.showGenerated
+                      ? item.inference_image_url
+                      : item.product?.images?.[0]?.url || ""
+                  }
+                  alt={item.showGenerated ? "Generated" : item.product?.name || "Product"}
                   className="card-img-top img-fluid"
+                  style={{ minHeight: '200px', objectFit: 'cover' }} // Added for better image handling
                 />
+
                 <div className="card-body p-4">
+                  <h5 className="card-title mb-2 fs-6 fs-md-5">
+                    {item.product?.name || "Generated Item"}
+                  </h5>
+                  <div className="d-flex justify-content-between align-items-center mt-3">
+                    <div className="price-tag">
+                      <span className="fs-6 fs-md-4 fw-bold text-primary">
+                        ₹{item.product?.price?.toFixed(2) || "N/A"}
+                      </span>
+                    </div>
+                  </div>
                   <button
                     className="btn btn-primary w-100 mt-3"
-                    onClick={() =>
-                      handleAddToCart({
-                        image: url,
-                        name: `Generated Image ${index}`,
-                      })
-                    }
+                    onClick={() => handleAddToCart(item)}
                   >
                     Add to Cart
                   </button>
@@ -160,6 +238,7 @@ const Wishlist = () => {
               </div>
             </div>
           ))}
+
           {wishlist.map((product) => (
             <div key={product.id} className="col">
               <div className="card h-100 border-0 shadow-sm rounded-3 overflow-hidden position-relative">
@@ -177,10 +256,13 @@ const Wishlist = () => {
                   src={product.images[0]?.url}
                   alt={product.name}
                   className="card-img-top img-fluid"
+                  style={{ minHeight: '200px', objectFit: 'cover' }} // Added for better image handling
                 />
 
                 <div className="card-body p-4">
-                <h5 className="card-title mb-2 fs-6 fs-md-5">{product.name}</h5>
+                  <h5 className="card-title mb-2 fs-6 fs-md-5">
+                    {product.name}
+                  </h5>
                   <div className="d-flex justify-content-between align-items-center mt-3">
                     <div className="price-tag">
                       <span className="fs-6 fs-md-4 fw-bold text-primary">

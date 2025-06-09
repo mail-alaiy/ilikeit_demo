@@ -55,7 +55,7 @@ const Grid = () => {
                 <div className="position-absolute top-0 end-0 m-3 z-index-1"></div>
 
                 <img
-                  src={images[index]}
+                  src={images[index].inference_image_url}
                   alt={`Image ${index + 1}`}
                   className="card-img-top img-fluid"
                 />
