@@ -30,7 +30,7 @@ const uiSlice = createSlice({
       state.drawer.step = 1;
     },
     nextStep: (state) => {
-      if (state.drawer.step < 4) state.drawer.step += 1;
+      if (state.drawer.step < 5) state.drawer.step += 1;
     },
     prevStep: (state) => {
       if (state.drawer.step > 1) state.drawer.step -= 1;

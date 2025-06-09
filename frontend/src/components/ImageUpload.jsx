@@ -9,20 +9,18 @@ import EXIF from "exif-js";
 import { X } from "react-bootstrap-icons";
 import supabase from "../supabaseClient";
 
-const demoImages = [
-  preset1,preset2
-];
+const demoImages = [preset1, preset2];
 
 const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
   const [image, setImage] = useState(null);
   const [rotation, setRotation] = useState(0);
   const dispatch = useDispatch();
-   const [isUploading, setIsUploading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
-     if (file.size > 5 * 1024 * 1024) {
-      alert('File size exceeds 5MB. Please choose a smaller image.');
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size exceeds 5MB. Please choose a smaller image.");
       return;
     }
     const imageUrl = URL.createObjectURL(file);
@@ -50,7 +48,7 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
   };
 
   const rotateImage = () => {
-    setRotation((prev) => (prev + 90));
+    setRotation((prev) => prev + 90);
   };
 
   const removeImage = () => {
@@ -80,7 +78,9 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
 
       // Convert the canvas back to a file
       canvas.toBlob(async (blob) => {
-        const file = new File([blob], "rotated-image.jpg", { type: "image/jpeg" });
+        const file = new File([blob], "rotated-image.jpg", {
+          type: "image/jpeg",
+        });
 
         const formData = new FormData();
         formData.append("file", file);
@@ -139,9 +139,9 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
       });
   };
 
-    useEffect(() => {
-      return () => image && URL.revokeObjectURL(image.preview);
-    }, [image]);
+  useEffect(() => {
+    return () => image && URL.revokeObjectURL(image.preview);
+  }, [image]);
 
   if (!visible) {
     return null;
@@ -150,25 +150,43 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
   return (
     <div className="image-upload-overlay">
       <div className="image-upload-container">
-        <div className="image-upload-header">
-          <h2 className="image-upload-title">UPLOAD IMAGE</h2>
+        <div
+          style={{ textAlign: "left", marginTop: "30px", paddingLeft: "20px" }}
+        >
+          <h2
+            style={{
+              fontSize: "18px",
+              fontWeight: "600",
+              color: "#432366",
+              marginBottom: "5px",
+            }}
+          >
+            Upload an Image
+          </h2>
+          <p
+            style={{ color: "#7a7a7a", fontSize: "12px", marginBottom: "20px" }}
+          >
+            Add an image to set-up your virtual <br />
+            try-on experience.
+          </p>
         </div>
+
         <button
-  onClick={() => dispatch(closeDrawer())}
-  style={{
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    background: "none",
-    border: "none",
-    padding: 0,
-    cursor: "pointer",
-    zIndex: 10,
-  }}
-  aria-label="Close"
->
-  <X size={25} />
-</button>
+          onClick={() => dispatch(closeDrawer())}
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            zIndex: 10,
+          }}
+          aria-label="Close"
+        >
+          <X size={25} />
+        </button>
         <div className="image-upload-body">
           <Dropzone
             onDrop={handleDrop}
@@ -176,24 +194,27 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
             multiple={false}
           >
             {({ getRootProps, getInputProps }) => (
-              <div
-                {...getRootProps()}
-                className="upload-box"
-              >
+              <div {...getRootProps()} className="upload-box">
                 <input {...getInputProps()} />
                 {!image?.preview ? (
                   <div className="upload-placeholder">
                     <UploadCloud size={24} className="upload-icon" />
-                    <p className="upload-text">Choose or capture a photo</p>
+                    <p className="upload-text">
+                      Choose a file with your image here
+                    </p>
                     <small className="upload-note">Maximum file: 5MB</small>
-                    <br />
-                    <small className="upload-note-italic">Supported formats: JPEG, PNG, AVIF</small>
+                    <small className="upload-note-italic">
+                      Supported formats: JPEG, PNG, AVIF
+                    </small>
                   </div>
                 ) : (
                   <div className="image-preview-container">
-                    <div className="image-wrapper" style={{
+                    <div
+                      className="image-wrapper"
+                      style={{
                         transform: `rotate(${rotation}deg)`,
-                      }}>
+                      }}
+                    >
                       <img
                         src={image.preview}
                         alt="preview"
@@ -201,16 +222,22 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
                       />
                     </div>
                     <div className="image-actions">
-                      <button onClick={(e) => {
-                        e.stopPropagation();
-                        rotateImage();
-                      }} className="image-action-button">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          rotateImage();
+                        }}
+                        className="image-action-button"
+                      >
                         <RotateCw size={18} />
                       </button>
-                      <button onClick={(e) => {
-                        e.stopPropagation();
-                        removeImage();
-                      }} className="image-action-button">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeImage();
+                        }}
+                        className="image-action-button"
+                      >
                         <Trash2 size={18} />
                       </button>
                     </div>
@@ -222,7 +249,9 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
 
           {/* Demo Image Thumbnails */}
           <div className="demo-images-section">
-            <h6>Or try with a demo image:</h6>
+            <h6 style={{ color: "#432366", fontSize: "1rem", fontWeight:"bold" }}>
+              Try with a demo image:
+            </h6>
             <div className="demo-images-container">
               {demoImages.map((url, index) => (
                 <img
@@ -263,20 +292,18 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
         }
 
         .image-upload-container {
-          background-color: white;
+          background-color: #f9f3dd;
           width: 340px;
           height: 580px;
           border-radius: 20px;
-          display: flex;
-          flex-direction: column;
           overflow: hidden;
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          position:relative;
+          position: relative;
         }
 
         .image-upload-header {
           padding-top: 20px;
-          padding-bottom:10px;
+          padding-bottom: 10px;
         }
 
         .image-upload-title {
@@ -284,7 +311,7 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
           font-size: 24px;
           font-weight: 300;
           margin: 0;
-          text-align:center;
+          text-align: center;
         }
 
         .image-upload-body {
@@ -293,20 +320,19 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
           align-items: center;
           padding: 0 20px;
           flex: 1;
-          overflow-y: auto;
         }
 
         .upload-box {
           width: 100%;
-          height: 40vh;
+          height: 240px;
           aspect-ratio: 3/4;
-          background-color: #f9f9f9;
+          background-color: #f9f3dd;
           border-radius: 10px;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin-bottom: 16px;
+          margin-bottom: 10px;
           overflow: hidden;
         }
 
@@ -324,7 +350,7 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
         }
 
         .upload-text {
-          font-size: 16px;
+          font-size: 14px;
           color: #333;
           margin-bottom: 4px;
         }
@@ -355,7 +381,7 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
           max-height: 100%;
           width: auto;
           height: auto;
-          object-fit: cover;
+          object-fit: contain;
         }
 
         .image-actions {
@@ -400,20 +426,20 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
 
         .demo-images-section {
           width: 100%;
-          margin-top: 12px;
-          text-align:center;
+          margin-top: 4px;
+          text-align: center;
         }
 
         .demo-images-container {
           display: flex;
-          gap: 8px;
-          align-items:center;
-          justify-content:center;
+          gap: 17px;
+          align-items: center;
+          justify-content: center;
         }
 
         .demo-image-thumbnail {
-          width: 60px;
-          height: 60px;
+          width: 80px;
+          height: 105px;
           object-fit: cover;
           border-radius: 6px;
           border: 2px solid #eee;
@@ -438,7 +464,7 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
           color: white;
           border: none;
           width: 100%;
-          padding: 10px 20px;
+          padding: 14px 16px;
           font-size: 14px;
           font-weight: 600;
           border-radius: 50px;

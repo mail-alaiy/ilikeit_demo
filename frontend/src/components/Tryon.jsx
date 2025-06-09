@@ -98,12 +98,13 @@ const ImageSliderModal = ({ show = true, onClose }) => {
       backdrop="static"
       keyboard
       className="border-0"
-      style={{ maxWidth: '100%' }}
     >
-      <Modal.Body
+      <div
         style={{
           padding: "1rem",
-          backgroundColor: "#ffffff",
+          backgroundColor: "rgba(0, 0, 0, 0.2)",
+          backdropFilter: "blur(10px)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
           borderRadius: "12px",
           boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
           position: "relative",
@@ -114,40 +115,83 @@ const ImageSliderModal = ({ show = true, onClose }) => {
           onClick={onClose}
           style={{
             position: "absolute",
-            top: 12,
-            right: 12,
-            background: "none",
+            top: 6,
+            right: 6,
+            background: "rgba(255, 255, 255, 0.9)",
             border: "none",
+            borderRadius: "50%",
+            width: 32,
+            height: 32,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             color: "#333",
-            padding: 4,
+            zIndex: 10,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
           }}
         >
-          <X size={20} />
+          <X size={18} />
         </button>
 
         {/* Image + Arrows */}
-        <div className="d-flex align-items-center justify-content-between mb-3">
-          <ArrowButton onClick={handlePrev}>
-            <IoChevronBackOutline size={20} />
-          </ArrowButton>
-          {images.length > 0 ? (
-            <img
-              src={images[currentIndex]}
-              alt="preview"
-              style={{
-                maxWidth: "100%",
-                maxHeight: "50vh", // Adjust maxHeight for better responsiveness
-                objectFit: "contain",
-                borderRadius: "8px",
-              }}
-            />
-          ) : (
-            <div className="text-muted">No images</div>
-          )}
-          <ArrowButton onClick={handleNext}>
-            <IoChevronForwardOutline size={20} />
-          </ArrowButton>
-        </div>
+        {/* Image with overlaid arrows */}
+<div
+  style={{
+    position: "relative",
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: "1rem",
+  }}
+>
+  {images.length > 0 ? (
+    <>
+      <img
+        src={images[currentIndex]}
+        alt="preview"
+        style={{
+          maxWidth: "100%",
+          maxHeight: "50vh",
+          objectFit: "contain",
+          borderRadius: "8px",
+        }}
+      />
+      {/* Left Arrow */}
+      <ArrowButton
+        onClick={handlePrev}
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "12px",
+          transform: "translateY(-50%)",
+          background: "rgba(255, 255, 255, 0.9)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        }}
+      >
+        <IoChevronBackOutline size={20} />
+      </ArrowButton>
+
+      {/* Right Arrow */}
+      <ArrowButton
+        onClick={handleNext}
+        style={{
+          position: "absolute",
+          top: "50%",
+          right: "12px",
+          transform: "translateY(-50%)",
+          background: "rgba(255, 255, 255, 0.9)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        }}
+      >
+        <IoChevronForwardOutline size={20} />
+      </ArrowButton>
+    </>
+  ) : (
+    <div className="text-muted">No images</div>
+  )}
+</div>
+
 
         {/* Actions */}
         <div className="d-flex justify-content-center gap-3 mt-2">
@@ -179,7 +223,7 @@ const ImageSliderModal = ({ show = true, onClose }) => {
             tooltip="View All"
           />
         </div>
-      </Modal.Body>
+      </div>
     </Modal>
   );
 };
@@ -229,21 +273,18 @@ const IconButton = ({ icon, onClick, color, tooltip }) => {
   );
 };
 
-const ArrowButton = ({ onClick, children }) => (
+const ArrowButton = ({ onClick, children, style }) => (
   <button
     onClick={onClick}
     style={{
       border: "none",
-      backgroundColor: "transparent",
       color: "#888",
-      padding: 8,
+      padding: 2,
       borderRadius: "50%",
+      backgroundColor: "transparent",
       transition: "background-color 0.2s",
+      ...style,
     }}
-    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f0f0f0")}
-    onMouseLeave={(e) =>
-      (e.currentTarget.style.backgroundColor = "transparent")
-    }
   >
     {children}
   </button>
