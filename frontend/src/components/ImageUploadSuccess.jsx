@@ -62,8 +62,8 @@ const ImageUploadSuccess = () => {
   return (
     <div className="modal-backdrop-custom fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="upload-modal card shadow-sm p-3" style={{ aspectRatio: "3/4", height:"580px", position:"relative" }}>
-        <div style={{textAlign:"center"}}>
-        <h2 className="text-2xl font-light text-center mb-1" style={{ color: "#6f42c1", textAlign:"center", fontSize:"24px"
+        <div style={{textAlign:"left"}}>
+        <h2 className="text-2xl font-light mb-1" style={{ color: "#6f42c1", textAlign:"left", fontSize:"24px"
          }}>
           ALL SET
         </h2>
@@ -84,12 +84,13 @@ const ImageUploadSuccess = () => {
 >
   <X size={25} />
 </button>
-        <p className="modal-subtext block text-sm font-medium text-gray-700 mb-2">
+        <p className="modal-subtext block text-sm font-medium text-gray-700 mb-2" style={{textAlign:"left"}}>
       We'll use this image for your try-ons.
         </p>
 
         <div className="image-placeholder d-flex justify-content-center align-items-center mb-3">
-          <img src={imageUrl} alt="Uploaded" className="img-fluid rounded place"/>
+          <img src={imageUrl} alt="Uploaded" className="img-fluid rounded place" style={{
+    border: "2px dotted #6f42c1",}}/>
         </div>
 
         <div className="text-center">

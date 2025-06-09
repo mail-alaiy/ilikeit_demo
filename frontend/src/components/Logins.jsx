@@ -1,13 +1,10 @@
 import React, { useState } from "react";
 import "./Login.css";
 import supabase from "../supabaseClient";
-import { useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 import { X } from "react-bootstrap-icons";
-import { Button} from "react-bootstrap";
-import {
-  closeDrawer,
-  nextStep,
-} from "../store/slice/uiSlice";
+import { Button } from "react-bootstrap";
+import { closeDrawer, nextStep } from "../store/slice/uiSlice";
 
 export default function LoginSuccessNotification() {
   const [email, setEmail] = useState("");
@@ -44,7 +41,7 @@ export default function LoginSuccessNotification() {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div
-        className="bg-white rounded-lg shadow-xl p-8 aspect-[3/4] mx-4 flex flex-col justify-between"
+        className="rounded-lg shadow-xl p-8 aspect-[3/4] mx-4 flex flex-col justify-between"
         style={{
           aspectRatio: "3 / 4",
           borderRadius: "20px",
@@ -52,25 +49,26 @@ export default function LoginSuccessNotification() {
           width: "340px",
           display: "flex",
           justifyContent: "center",
-          position: "relative"
+          position: "relative",
+          backgroundColor: "#F9F3DD",
         }}
       >
         <button
-  onClick={() => dispatch(closeDrawer())}
-  style={{
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    background: "none",
-    border: "none",
-    padding: 0,
-    cursor: "pointer",
-    zIndex: 10,
-  }}
-  aria-label="Close"
->
-  <X size={25} />
-</button>
+          onClick={() => dispatch(closeDrawer())}
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            zIndex: 10,
+          }}
+          aria-label="Close"
+        >
+          <X size={25} />
+        </button>
 
         <h2
           className="text-2xl font-light"
@@ -132,11 +130,21 @@ export default function LoginSuccessNotification() {
           )}
         </div>
 
-        <div className="flex flex-col items-center space-y-3">
+        <div className="w-full flex flex-col space-y-3">
           <button
             onClick={handleLoginSignup}
             disabled={loading}
-            className="w-full continue-btn"
+            style={{
+              backgroundColor: "#6a1b9a",
+              color: "white",
+              fontSize: "14px",
+              fontWeight: 600,
+              padding: "10px 20px",
+              borderRadius: "50px",
+              border: "none",
+              transition: "all 0.3s ease",
+              width: "100%",
+            }}
           >
             {loading ? "Loading..." : "Continue"}
           </button>

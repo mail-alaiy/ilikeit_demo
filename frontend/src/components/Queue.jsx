@@ -70,6 +70,8 @@ const QueueBar = () => {
     setShowSlider(true); // Open the modal on click
   };
 
+  if (!userId) return null;
+
   return (
     <div
       style={{

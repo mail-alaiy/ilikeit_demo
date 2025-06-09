@@ -9,14 +9,12 @@ import DrawerOverlay from "./components/Drawer";
 import { useDispatch, useSelector } from "react-redux";
 import { setInitialImages } from "./store/slice/uiSlice";
 import supabase from "./supabaseClient";
-
-// Import pages
 import HomePage from "./pages/HomePage";
 import ProductPage from "./pages/ProductPage";
 import WishlistPage from "./pages/WishlistPage";
 import FitsPage from "./pages/FitsPage";
 import CartPage from "./pages/CartPage";
-import Profile from "./components/Profile";
+import ImageUploadSuccess from "./components/ImageUploadSuccess";
 
 const App = () => {
   const [userId, setUserId] = useState(null);
@@ -113,6 +111,14 @@ const App = () => {
           element={
             <Layout>
               <WishlistPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/allset"
+          element={
+            <Layout>
+              <ImageUploadSuccess/>
             </Layout>
           }
         />
