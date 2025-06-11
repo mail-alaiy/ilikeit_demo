@@ -1,0 +1,98 @@
+.notificationBubble {
+  position: fixed;
+  bottom: 50px;
+  right: 10px;
+  transform: translateX(0);
+  background-color: #6f42c1;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(20px) translateY(0);
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out, visibility 0.3s ease-out;
+  z-index: 10000;
+}
+
+.notificationBubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  right: 15px;
+  left: auto;
+  transform: translateX(0);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #6f42c1;
+}
+
+.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0) translateY(0);
+}
+
+.success {
+  background-color: #6f42c1;
+}
+
+.success::after {
+  border-top: 10px solid #6f42c1;
+}
+
+.error {
+  background-color: #dc3545;
+}
+
+.error::after {
+  border-top: 10px solid #dc3545;
+}
+
+.warning {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.warning::after {
+  border-top: 10px solid #ffc107;
+}
+
+.info {
+  background-color: #17a2b8;
+}
+
+.info::after {
+  border-top: 10px solid #17a2b8;
+}
+
+.firstLook {
+  background-color: #6f42c1;
+}
+
+.firstLook::after {
+  border-top: 10px solid #6f42c1;
+}
+
+.notificationBubble button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  transition: background-color 0.2s ease;
+}
+
+.notificationBubble button:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}

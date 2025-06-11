@@ -8,6 +8,7 @@ import { closeDrawer, nextStep } from "../store/slice/uiSlice";
 import EXIF from "exif-js";
 import { X } from "react-bootstrap-icons";
 import supabase from "../supabaseClient";
+import heic2any from "heic2any"; // This import is crucial for HEIC conversion
 
 const demoImages = [preset1, preset2];
 
@@ -17,14 +18,39 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
   const dispatch = useDispatch();
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleDrop = (acceptedFiles) => {
+  const handleDrop = async (acceptedFiles) => {
     const file = acceptedFiles[0];
     if (file.size > 5 * 1024 * 1024) {
       alert("File size exceeds 5MB. Please choose a smaller image.");
       return;
     }
-    const imageUrl = URL.createObjectURL(file);
-    EXIF.getData(file, function () {
+    let processedFile = file;
+
+    if (file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
+        try {
+            console.log("Attempting HEIC/HEIF conversion...");
+            const convertedBlob = await heic2any({
+                blob: file,
+                toType: "image/jpeg",
+                quality: 0.9
+            });
+            const newFileName = file.name.replace(/\.(heic|heif)$/i, '.jpeg');
+            processedFile = new File([convertedBlob], newFileName, { type: 'image/jpeg' });
+            console.log("Converted HEIC/HEIF to JPEG. New file:", processedFile);
+
+        } catch (error) {
+            console.error("Error converting HEIC/HEIF to JPEG with heic2any:", error);
+            alert("Failed to process HEIC/HEIF image. Please try another format.");
+            return;
+        }
+    }
+
+    
+
+    console.log(processedFile,"processed");
+
+    const imageUrl = URL.createObjectURL(processedFile); // Use processedFile for URL creation
+    EXIF.getData(processedFile, function () { // Pass processedFile to EXIF.getData
       const orientation = EXIF.getTag(this, "Orientation");
 
       let correctedRotation = 0;
@@ -42,7 +68,8 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
           correctedRotation = 0;
           break;
       }
-      setImage({ file, preview: imageUrl });
+      // Store the processed file and its preview URL in the state
+      setImage({ file: processedFile, preview: imageUrl });
       setRotation(correctedRotation);
     });
   };
@@ -58,7 +85,8 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
   };
 
   const handleUpload = async () => {
-    if (!image || !image.file) return;
+    if (!image || !image.file) return; // Ensure image.file exists
+
     setIsUploading(true);
 
     // Correct image rotation using canvas
@@ -68,8 +96,12 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
     img.src = image.preview;
 
     img.onload = async () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
+      // Set canvas dimensions based on image and rotation to prevent clipping
+      const rotatedWidth = (rotation % 180 === 0) ? img.width : img.height;
+      const rotatedHeight = (rotation % 180 === 0) ? img.height : img.width;
+
+      canvas.width = rotatedWidth;
+      canvas.height = rotatedHeight;
 
       // Apply the rotation to the canvas context
       ctx.translate(canvas.width / 2, canvas.height / 2);
@@ -91,7 +123,7 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
         } = await supabase.auth.getUser();
 
         if (error || !user) {
-          alert("Failed to fetch user.");
+          alert("Failed to fetch user. Please log in again.");
           setIsUploading(false);
           return;
         }
@@ -117,12 +149,12 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
 
           const data = await response.json();
           console.log("Upload successful:", data);
-          dispatch(nextStep());
+          dispatch(nextStep()); // Proceed to the next step on successful upload
         } catch (error) {
           console.error("Upload error:", error.message);
           alert("Failed to upload image: " + error.message);
         } finally {
-          setIsUploading(false);
+          setIsUploading(false); // Reset uploading state
         }
       }, "image/jpeg");
     };
@@ -140,6 +172,7 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
   };
 
   useEffect(() => {
+    // Cleanup function to revoke object URL when component unmounts or image changes
     return () => image && URL.revokeObjectURL(image.preview);
   }, [image]);
 
@@ -190,7 +223,13 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
         <div className="image-upload-body">
           <Dropzone
             onDrop={handleDrop}
-            accept={{ "image/jpeg": [], "image/png": [], "image/avif": [] }}
+            accept={{
+              "image/jpeg": [],
+              "image/png": [],
+              "image/avif": [],
+              "image/heic": [], // Added HEIC acceptance
+              "image/heif": []
+            }}
             multiple={false}
           >
             {({ getRootProps, getInputProps }) => (
@@ -204,7 +243,7 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
                     </p>
                     <small className="upload-note">Maximum file: 5MB</small>
                     <small className="upload-note-italic">
-                      Supported formats: JPEG, PNG, AVIF
+                      Supported formats: JPEG, PNG, AVIF, HEIC/HEIF
                     </small>
                   </div>
                 ) : (
@@ -272,7 +311,7 @@ const ImageUploadComponent = ({ onClose, onUpload, visible = true }) => {
             disabled={!image || isUploading}
             className="upload-button"
           >
-            Upload
+            {isUploading ? "Processing your image..." : "Upload"}
           </button>
         </div>
       </div>
