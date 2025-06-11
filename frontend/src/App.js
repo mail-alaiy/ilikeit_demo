@@ -15,6 +15,7 @@ import WishlistPage from "./pages/WishlistPage";
 import FitsPage from "./pages/FitsPage";
 import CartPage from "./pages/CartPage";
 import ImageUploadSuccess from "./components/ImageUploadSuccess";
+import NotificationMessage from "./components/NotificationMessage";
 
 const App = () => {
   const [userId, setUserId] = useState(null);
@@ -141,6 +142,7 @@ const App = () => {
         />
       </Routes>
       <DrawerOverlay />
+        <NotificationMessage />
     </Router>
   );
 };

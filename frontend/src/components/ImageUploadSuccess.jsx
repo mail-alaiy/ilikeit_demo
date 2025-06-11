@@ -46,7 +46,7 @@ const ImageUploadSuccess = () => {
             if (!response.ok) throw new Error("Failed to fetch image");
     
             const data = await response.json();
-            setImageUrl(data.image);
+            setImageUrl(data.bg_cleaned_image_url);
           } catch (error) {
             console.error("Error fetching image:", error);
           } finally {
