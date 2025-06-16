@@ -443,7 +443,7 @@ const ImageSliderModal = ({ show = true, onClose }) => {
               )}
 
               {/* Navigation arrows - only shown when images are loaded, no error, and there's more than one image */}
-              {!isCurrentLoading && !isCurrentError && images.length > 1 && (
+              {!isCurrentError && images.length > 1 && (
                 <>
                   {/* Left Arrow */}
                   <ArrowButton
